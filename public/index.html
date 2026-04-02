@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#4A90E2">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>조씨네 Osaka Planner</title>
@@ -872,6 +874,20 @@ photoImg.src = DEFAULT_PHOTO;
 document.getElementById('photoZone').classList.add('has-photo');
 
 renderDaysGrid();
+photoImg.src = DEFAULT_PHOTO;
+document.getElementById('photoZone').classList.add('has-photo');
+
+renderDaysGrid();
+</script>
+
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/service-worker.js')
+        .then(reg => console.log('서비스 워커 등록 성공!', reg))
+        .catch(err => console.log('서비스 워커 등록 실패:', err));
+    });
+  }
 </script>
 </body>
 </html>
