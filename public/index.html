@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>조씨네 Osaka Planner</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --red: #c0392b;
+    --red2: #e74c3c;
+    --orange: #e67e22;
+    --cream: #fffbf5;
+    --ink: #1a1410;
+    --muted: #8a7a6a;
+    --border: #e8ddd0;
+    --surface: #fff;
+    --bg: #f7f2eb;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; }
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    background: var(--red);
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    padding: 2rem 1.25rem 1.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::after {
+    content: '🇯🇵';
+    position: absolute;
+    right: -10px;
+    top: -10px;
+    font-size: 80px;
+    opacity: 0.08;
+    transform: rotate(15deg);
+  }
+  .header-dates {
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: rgba(255,255,255,0.65);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .header-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    color: white;
+    line-height: 1.2;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  }
+  .header-title em {
+    font-style: italic;
+    font-weight: 400;
+    color: rgba(255,255,255,0.8);
+    font-size: 22px;
+  }
+
+  /* ── PHOTO ZONE ── */
+  .photo-zone {
+    margin: 1.25rem;
+    border-radius: 16px;
+    overflow: hidden;
+    position: relative;
+    background: white;
+    border: 2px dashed var(--border);
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+  .photo-zone:hover { border-color: var(--red2); }
+  .photo-zone.has-photo { border: none; }
+  .photo-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    min-height: 160px;
+    gap: 8px;
+  }
+  .photo-icon {
+    width: 52px; height: 52px;
+    background: #fdf0ed;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    margin-bottom: 4px;
+  }
+  .photo-placeholder p { font-size: 14px; color: var(--muted); font-weight: 500; }
+  .photo-placeholder span { font-size: 12px; color: #bbb; }
+  #photoPreview {
+    width: 100%;
+    max-height: 260px;
+    object-fit: cover;
+    display: none;
+  }
+  .photo-change-btn {
+    position: absolute;
+    bottom: 10px; right: 10px;
+    background: rgba(0,0,0,0.55);
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 5px 12px;
+    font-size: 12px;
+    cursor: pointer;
+    backdrop-filter: blur(4px);
+    font-family: inherit;
+    display: none;
+  }
+  .photo-zone.has-photo .photo-change-btn { display: block; }
+  .photo-zone.has-photo .photo-placeholder { display: none; }
+  .photo-zone.has-photo #photoPreview { display: block; }
+  #photoInput { display: none; }
+
+  /* ── SECTION LABELS ── */
+  .section-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 0 1.25rem;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  /* ── DAY CARDS ── */
+  .days-scroll {
+    padding: 0 1.25rem;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 1.5rem;
+  }
+  .day-card {
+    background: white;
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    padding: 10px 6px 12px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+  }
+  .day-card:hover {
+    border-color: var(--red2);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(192,57,43,0.12);
+  }
+  .day-card.active {
+    background: var(--red);
+    border-color: var(--red);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(192,57,43,0.3);
+  }
+  .day-card.active .dc-date,
+  .day-card.active .dc-weekday,
+  .day-card.active .dc-name { color: white; }
+  .day-card.active .dc-weekday { color: rgba(255,255,255,0.7); }
+  .dc-emoji { font-size: 20px; display: block; margin-bottom: 5px; }
+  .dc-date { font-size: 16px; font-weight: 700; color: var(--ink); display: block; }
+  .dc-weekday { font-size: 10px; color: var(--muted); display: block; margin-top: 1px; }
+  .dc-name { font-size: 10px; color: var(--muted); display: block; margin-top: 2px; font-weight: 500; }
+  .dot-badge {
+    width: 7px; height: 7px;
+    background: #27ae60;
+    border-radius: 50%;
+    position: absolute;
+    top: 7px; right: 7px;
+    border: 1.5px solid white;
+  }
+  .day-card.active .dot-badge { border-color: var(--red); }
+
+  /* ── SCHEDULE PANEL ── */
+  .schedule-panel {
+    margin: 0 1.25rem 1.5rem;
+    background: white;
+    border-radius: 20px;
+    border: 1.5px solid var(--border);
+    overflow: hidden;
+    animation: slideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .panel-head {
+    background: linear-gradient(135deg, var(--red) 0%, var(--orange) 100%);
+    padding: 1.1rem 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .panel-day-info { flex: 1; }
+  .panel-day-title { font-size: 16px; font-weight: 700; color: white; }
+  .panel-day-sub { font-size: 12px; color: rgba(255,255,255,0.75); margin-top: 2px; }
+  .add-item-btn {
+    width: 36px; height: 36px;
+    background: rgba(255,255,255,0.2);
+    border: 1.5px solid rgba(255,255,255,0.35);
+    border-radius: 50%;
+    color: white;
+    font-size: 22px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s;
+    line-height: 1;
+    padding-bottom: 1px;
+  }
+  .add-item-btn:hover { background: rgba(255,255,255,0.35); }
+
+  /* ── ITEMS ── */
+  .items-container { padding: 6px 0 8px; min-height: 80px; }
+  .empty-state {
+    text-align: center;
+    padding: 2rem 1rem;
+    color: #ccc;
+    font-size: 13px;
+    line-height: 1.8;
+  }
+  .empty-icon { font-size: 32px; display: block; margin-bottom: 8px; }
+
+  .item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 11px 1.25rem;
+    border-bottom: 0.5px solid #f5f0ea;
+    animation: fadeIn 0.2s ease;
+  }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .item:last-child { border-bottom: none; }
+  .item-time {
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 500;
+    min-width: 44px;
+    padding-top: 2px;
+    font-variant-numeric: tabular-nums;
+  }
+  .item-main { flex: 1; }
+  .item-badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 20px;
+    margin-bottom: 3px;
+  }
+  .badge-move { background: #eaf4fd; color: #1a6fa0; }
+  .badge-tour { background: #eafaf1; color: #1a7a40; }
+  .badge-food { background: #fef6e4; color: #9a5f0a; }
+  .badge-stay { background: #f5eef8; color: #6c3483; }
+  .badge-check { background: #eafaf1; color: #1a7a40; }
+  .badge-etc  { background: #fdf2f2; color: #922b21; }
+  .item-text { font-size: 13px; color: var(--ink); line-height: 1.55; }
+  .item-memo { font-size: 12px; color: var(--muted); margin-top: 2px; line-height: 1.4; }
+  .item-actions { display: flex; gap: 2px; }
+  .item-action-btn {
+    background: none; border: none;
+    width: 28px; height: 28px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex; align-items: center; justify-content: center;
+    color: #ccc;
+    transition: all 0.15s;
+  }
+  .item-action-btn:hover { background: #f5f0ea; color: var(--muted); }
+  .item-action-btn.del:hover { background: #fdf2f2; color: var(--red2); }
+
+  /* ── MODAL ── */
+  .overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(26,20,16,0.5);
+    z-index: 200;
+    align-items: flex-end;
+    justify-content: center;
+    backdrop-filter: blur(2px);
+  }
+  .overlay.open { display: flex; }
+  .modal {
+    background: white;
+    width: 100%;
+    max-width: 520px;
+    border-radius: 24px 24px 0 0;
+    padding: 0;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: sheetUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  @keyframes sheetUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+  .modal-handle {
+    width: 36px; height: 4px;
+    background: #e0d8d0;
+    border-radius: 2px;
+    margin: 12px auto 0;
+  }
+  .modal-header {
+    padding: 1rem 1.5rem 0.75rem;
+    border-bottom: 0.5px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .modal-title { font-size: 16px; font-weight: 700; }
+  .modal-close {
+    background: #f5f0ea; border: none;
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--muted);
+  }
+  .modal-body { padding: 1.25rem 1.5rem 1rem; }
+  .form-group { margin-bottom: 1rem; }
+  .form-group label {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .cat-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 6px;
+  }
+  .cat-btn {
+    background: #f7f2eb;
+    border: 1.5px solid transparent;
+    border-radius: 10px;
+    padding: 8px 4px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+  .cat-btn:hover { border-color: var(--border); background: #f0ebe4; }
+  .cat-btn.selected { border-color: var(--red2); background: #fdf2f2; }
+  .cat-btn-icon { font-size: 18px; display: block; }
+  .cat-btn-label { font-size: 10px; color: var(--muted); margin-top: 2px; display: block; font-weight: 500; }
+  .cat-btn.selected .cat-btn-label { color: var(--red2); font-weight: 700; }
+  input[type="time"],
+  input[type="text"],
+  textarea {
+    width: 100%;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 14px;
+    font-family: inherit;
+    color: var(--ink);
+    background: #fffbf8;
+    outline: none;
+    transition: border-color 0.15s;
+    -webkit-appearance: none;
+  }
+  input[type="time"]:focus,
+  input[type="text"]:focus,
+  textarea:focus { border-color: var(--red2); background: white; }
+  textarea { resize: vertical; min-height: 72px; line-height: 1.5; }
+  .modal-footer {
+    padding: 0.75rem 1.5rem 1.5rem;
+    display: flex;
+    gap: 8px;
+  }
+  .btn-cancel {
+    flex: 1;
+    background: #f5f0ea;
+    border: none;
+    border-radius: 12px;
+    padding: 13px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--muted);
+    font-family: inherit;
+    transition: background 0.15s;
+  }
+  .btn-cancel:hover { background: #ece7e0; }
+  .btn-save {
+    flex: 2;
+    background: var(--red);
+    border: none;
+    border-radius: 12px;
+    padding: 13px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    color: white;
+    font-family: inherit;
+    transition: background 0.15s;
+  }
+  .btn-save:hover { background: #a93226; }
+
+  /* ── EDIT MODAL ── */
+  .edit-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(26,20,16,0.5);
+    z-index: 300;
+    align-items: flex-end;
+    justify-content: center;
+    backdrop-filter: blur(2px);
+  }
+  .edit-overlay.open { display: flex; }
+
+  /* ── MEMO SECTION ── */
+  .memo-section {
+    margin: 0 1.25rem 1.5rem;
+    background: white;
+    border-radius: 16px;
+    border: 1.5px solid var(--border);
+    overflow: hidden;
+  }
+  .memo-head {
+    padding: 0.8rem 1.25rem;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--ink);
+    border-bottom: 0.5px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .memo-body textarea {
+    border: none;
+    border-radius: 0;
+    background: white;
+    padding: 0.75rem 1.25rem;
+    font-size: 13px;
+    color: var(--ink);
+    min-height: 80px;
+  }
+  .memo-body textarea:focus { border: none; background: white; }
+
+  /* ── FOOTER ── */
+  .app-footer {
+    text-align: center;
+    padding: 1rem;
+    font-size: 11px;
+    color: #ccc;
+  }
+  .app-footer span { color: var(--red2); }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-dates">May 24 – 31, 2025 · 8 Days</div>
+  <div class="header-title">조씨네<br><em>Osaka Planner</em></div>
+</div>
+
+<!-- PHOTO ZONE -->
+<div style="margin-top:1.25rem;">
+  <div class="section-label">가족사진</div>
+  <div class="photo-zone" id="photoZone" onclick="document.getElementById('photoInput').click()">
+    <div class="photo-placeholder">
+      <div class="photo-icon">📸</div>
+      <p>가족사진을 올려주세요</p>
+      <span>탭하여 사진 선택</span>
+    </div>
+    <img id="photoPreview" src="" alt="가족사진">
+    <button class="photo-change-btn" onclick="event.stopPropagation(); document.getElementById('photoInput').click()">✎ 사진 변경</button>
+  </div>
+  <input type="file" id="photoInput" accept="image/*">
+</div>
+
+<!-- DAY CARDS -->
+<div style="margin-top:1.25rem;">
+  <div class="section-label">날짜별 일정</div>
+  <div class="days-scroll" id="daysGrid"></div>
+</div>
+
+<!-- SCHEDULE PANEL -->
+<div id="scheduleWrap" style="display:none">
+  <div class="schedule-panel" id="schedulePanel">
+    <div class="panel-head">
+      <div class="panel-day-info">
+        <div class="panel-day-title" id="panelTitle">—</div>
+        <div class="panel-day-sub" id="panelSub">일정을 추가해 보세요</div>
+      </div>
+      <button class="add-item-btn" onclick="openAddModal()">+</button>
+    </div>
+    <div class="items-container" id="itemsContainer"></div>
+  </div>
+
+  <!-- DAY MEMO -->
+  <div class="memo-section">
+    <div class="memo-head">📝 메모</div>
+    <div class="memo-body">
+      <textarea id="dayMemo" placeholder="이 날의 메모나 팁을 입력하세요..." oninput="saveMemo()"></textarea>
+    </div>
+  </div>
+</div>
+
+<div class="app-footer">조씨네 오사카 여행 <span>♥</span> 2025</div>
+
+<!-- ADD MODAL -->
+<div class="overlay" id="addOverlay">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <span class="modal-title" id="addModalTitle">일정 추가</span>
+      <button class="modal-close" onclick="closeAddModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>카테고리</label>
+        <div class="cat-grid" id="catGrid">
+          <button class="cat-btn selected" data-cat="move" onclick="selectCat(this)">
+            <span class="cat-btn-icon">🚃</span>
+            <span class="cat-btn-label">이동</span>
+          </button>
+          <button class="cat-btn" data-cat="tour" onclick="selectCat(this)">
+            <span class="cat-btn-icon">🏯</span>
+            <span class="cat-btn-label">관광</span>
+          </button>
+          <button class="cat-btn" data-cat="food" onclick="selectCat(this)">
+            <span class="cat-btn-icon">🍜</span>
+            <span class="cat-btn-label">식사</span>
+          </button>
+          <button class="cat-btn" data-cat="stay" onclick="selectCat(this)">
+            <span class="cat-btn-icon">🏨</span>
+            <span class="cat-btn-label">숙박</span>
+          </button>
+          <button class="cat-btn" data-cat="check" onclick="selectCat(this)">
+            <span class="cat-btn-icon">✅</span>
+            <span class="cat-btn-label">체크</span>
+          </button>
+          <button class="cat-btn" data-cat="etc" onclick="selectCat(this)">
+            <span class="cat-btn-icon">📌</span>
+            <span class="cat-btn-label">기타</span>
+          </button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>시간</label>
+        <input type="time" id="fTime">
+      </div>
+      <div class="form-group">
+        <label>내용</label>
+        <input type="text" id="fContent" placeholder="예: 도톤보리 타코야키 맛집">
+      </div>
+      <div class="form-group">
+        <label>메모 (선택)</label>
+        <textarea id="fMemo" placeholder="추가 메모, 주소, 예약 번호 등"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeAddModal()">취소</button>
+      <button class="btn-save" id="saveBtn" onclick="saveItem()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT MODAL -->
+<div class="edit-overlay" id="editOverlay">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <span class="modal-title">일정 수정</span>
+      <button class="modal-close" onclick="closeEditModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>카테고리</label>
+        <div class="cat-grid" id="editCatGrid">
+          <button class="cat-btn" data-cat="move" onclick="selectEditCat(this)"><span class="cat-btn-icon">🚃</span><span class="cat-btn-label">이동</span></button>
+          <button class="cat-btn" data-cat="tour" onclick="selectEditCat(this)"><span class="cat-btn-icon">🏯</span><span class="cat-btn-label">관광</span></button>
+          <button class="cat-btn" data-cat="food" onclick="selectEditCat(this)"><span class="cat-btn-icon">🍜</span><span class="cat-btn-label">식사</span></button>
+          <button class="cat-btn" data-cat="stay" onclick="selectEditCat(this)"><span class="cat-btn-icon">🏨</span><span class="cat-btn-label">숙박</span></button>
+          <button class="cat-btn" data-cat="check" onclick="selectEditCat(this)"><span class="cat-btn-icon">✅</span><span class="cat-btn-label">체크</span></button>
+          <button class="cat-btn" data-cat="etc" onclick="selectEditCat(this)"><span class="cat-btn-icon">📌</span><span class="cat-btn-label">기타</span></button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>시간</label>
+        <input type="time" id="eFTime">
+      </div>
+      <div class="form-group">
+        <label>내용</label>
+        <input type="text" id="eFContent">
+      </div>
+      <div class="form-group">
+        <label>메모 (선택)</label>
+        <textarea id="eFMemo"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeEditModal()">취소</button>
+      <button class="btn-save" onclick="updateItem()">수정 완료</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import {
+  getFirestore, doc, getDoc, setDoc, onSnapshot, collection, addDoc,
+  deleteDoc, updateDoc, query, orderBy, serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+// ── FIREBASE ─────────────────────────────────────────────────────
+const firebaseConfig = {
+  apiKey: "AIzaSyAJxW5pRGS5s4svn98rVqHbbTDRNFnbpUI",
+  authDomain: "osaka-planner-d09f4.firebaseapp.com",
+  projectId: "osaka-planner-d09f4",
+  storageBucket: "osaka-planner-d09f4.firebasestorage.app",
+  messagingSenderId: "193860568839",
+  appId: "1:193860568839:web:19ec09270d62ce187a27a2"
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// ── DATA ─────────────────────────────────────────────────────────
+const DAYS = [
+  { date:'5/24', weekday:'토', name:'출발', emoji:'✈️' },
+  { date:'5/25', weekday:'일', name:'오사카', emoji:'🏯' },
+  { date:'5/26', weekday:'월', name:'오사카', emoji:'🦌' },
+  { date:'5/27', weekday:'화', name:'유니버셜', emoji:'⛩️' },
+  { date:'5/28', weekday:'수', name:'교토', emoji:'🎡' },
+  { date:'5/29', weekday:'목', name:'교토', emoji:'🛍️' },
+  { date:'5/30', weekday:'금', name:'교토', emoji:'🍜' },
+  { date:'5/31', weekday:'토', name:'귀국', emoji:'🏠' },
+];
+const CAT = {
+  move:  { label:'이동', emoji:'🚃', cls:'badge-move' },
+  tour:  { label:'관광', emoji:'🏯', cls:'badge-tour' },
+  food:  { label:'식사', emoji:'🍜', cls:'badge-food' },
+  stay:  { label:'숙박', emoji:'🏨', cls:'badge-stay' },
+  check: { label:'체크', emoji:'✅', cls:'badge-check' },
+  etc:   { label:'기타', emoji:'📌', cls:'badge-etc'  },
+};
+
+let activeDay = null;
+let editId = null;
+let editDocId = null;
+// 각 날짜별 실시간 아이템 캐시
+const itemsCache = {};
+// 각 날짜별 메모 캐시
+const memosCache = {};
+
+function escHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ── FIRESTORE LISTENERS ───────────────────────────────────────────
+// 전체 날짜에 대해 실시간 리스너 등록
+DAYS.forEach((_, i) => {
+  const itemsRef = collection(db, 'days', String(i), 'items');
+  onSnapshot(query(itemsRef, orderBy('time')), (snap) => {
+    itemsCache[i] = [];
+    snap.forEach(d => itemsCache[i].push({ docId: d.id, ...d.data() }));
+    // 그리드 dot-badge 업데이트
+    const card = document.getElementById('dayCard-' + i);
+    if (card) {
+      const existing = card.querySelector('.dot-badge');
+      if (itemsCache[i].length > 0 && !existing) {
+        const dot = document.createElement('div');
+        dot.className = 'dot-badge';
+        card.appendChild(dot);
+      } else if (itemsCache[i].length === 0 && existing) {
+        existing.remove();
+      }
+    }
+    // 현재 열린 패널이면 다시 렌더
+    if (activeDay === i) renderPanel();
+  });
+
+  // 메모 리스너
+  onSnapshot(doc(db, 'memos', String(i)), (snap) => {
+    memosCache[i] = snap.exists() ? (snap.data().text || '') : '';
+    if (activeDay === i) {
+      document.getElementById('dayMemo').value = memosCache[i];
+    }
+  });
+});
+
+// ── DAYS GRID ────────────────────────────────────────────────────
+function renderDaysGrid() {
+  const grid = document.getElementById('daysGrid');
+  grid.innerHTML = '';
+  DAYS.forEach((d, i) => {
+    const items = itemsCache[i] || [];
+    const card = document.createElement('div');
+    card.className = 'day-card' + (activeDay === i ? ' active' : '');
+    card.id = 'dayCard-' + i;
+    card.onclick = () => selectDay(i);
+    card.innerHTML = `
+      <span class="dc-emoji">${d.emoji}</span>
+      <span class="dc-date">${d.date}</span>
+      <span class="dc-weekday">${d.weekday}</span>
+      <span class="dc-name">${d.name}</span>
+      ${items.length > 0 ? '<div class="dot-badge"></div>' : ''}
+    `;
+    grid.appendChild(card);
+  });
+}
+
+function selectDay(i) {
+  activeDay = i;
+  renderDaysGrid();
+  renderPanel();
+  document.getElementById('scheduleWrap').style.display = '';
+  setTimeout(() => {
+    document.getElementById('scheduleWrap').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }, 100);
+}
+
+// ── PANEL ────────────────────────────────────────────────────────
+function renderPanel() {
+  if (activeDay === null) return;
+  const d = DAYS[activeDay];
+  document.getElementById('panelTitle').textContent = `${d.emoji} ${d.date}(${d.weekday}) · ${d.name}`;
+  const items = (itemsCache[activeDay] || []).slice().sort((a,b) => (a.time||'').localeCompare(b.time||''));
+  document.getElementById('panelSub').textContent = items.length ? `총 ${items.length}개 일정` : '+ 버튼으로 일정을 추가하세요';
+  document.getElementById('dayMemo').value = memosCache[activeDay] || '';
+
+  const container = document.getElementById('itemsContainer');
+  if (!items.length) {
+    container.innerHTML = `<div class="empty-state"><span class="empty-icon">🗓️</span>아직 일정이 없어요.<br>위 + 버튼으로 추가해 보세요!</div>`;
+    return;
+  }
+  container.innerHTML = items.map(item => {
+    const cat = CAT[item.cat] || CAT.etc;
+    return `
+    <div class="item" id="item-${item.docId}">
+      <div class="item-time">${escHtml(item.time || '—')}</div>
+      <div class="item-main">
+        <span class="item-badge ${cat.cls}">${cat.emoji} ${cat.label}</span>
+        <div class="item-text">${escHtml(item.content)}</div>
+        ${item.memo ? `<div class="item-memo">${escHtml(item.memo)}</div>` : ''}
+      </div>
+      <div class="item-actions">
+        <button class="item-action-btn" onclick="openEditModal('${item.docId}')" title="수정">✎</button>
+        <button class="item-action-btn del" onclick="deleteItem('${item.docId}')" title="삭제">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── MEMO ─────────────────────────────────────────────────────────
+let memoTimer;
+window.saveMemo = function() {
+  if (activeDay === null) return;
+  clearTimeout(memoTimer);
+  memoTimer = setTimeout(async () => {
+    const text = document.getElementById('dayMemo').value;
+    await setDoc(doc(db, 'memos', String(activeDay)), { text });
+  }, 800);
+};
+
+// ── ADD MODAL ────────────────────────────────────────────────────
+let selectedCat = 'move';
+window.openAddModal = function() {
+  selectedCat = 'move';
+  document.querySelectorAll('#catGrid .cat-btn').forEach(b => b.classList.remove('selected'));
+  document.querySelector('#catGrid [data-cat="move"]').classList.add('selected');
+  document.getElementById('fTime').value = '';
+  document.getElementById('fContent').value = '';
+  document.getElementById('fMemo').value = '';
+  document.getElementById('addOverlay').classList.add('open');
+  setTimeout(() => document.getElementById('fContent').focus(), 350);
+};
+window.closeAddModal = function() { document.getElementById('addOverlay').classList.remove('open'); };
+window.selectCat = function(btn) {
+  document.querySelectorAll('#catGrid .cat-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  selectedCat = btn.dataset.cat;
+};
+window.saveItem = async function() {
+  const content = document.getElementById('fContent').value.trim();
+  if (!content) { document.getElementById('fContent').focus(); return; }
+  const itemsRef = collection(db, 'days', String(activeDay), 'items');
+  await addDoc(itemsRef, {
+    cat: selectedCat,
+    time: document.getElementById('fTime').value || '00:00',
+    content,
+    memo: document.getElementById('fMemo').value.trim(),
+    createdAt: serverTimestamp(),
+  });
+  window.closeAddModal();
+};
+
+// ── EDIT MODAL ───────────────────────────────────────────────────
+let editCat = 'move';
+window.openEditModal = function(docId) {
+  const items = itemsCache[activeDay] || [];
+  const item = items.find(i => i.docId === docId);
+  if (!item) return;
+  editDocId = docId;
+  editCat = item.cat;
+  document.querySelectorAll('#editCatGrid .cat-btn').forEach(b => {
+    b.classList.toggle('selected', b.dataset.cat === item.cat);
+  });
+  document.getElementById('eFTime').value = item.time || '';
+  document.getElementById('eFContent').value = item.content;
+  document.getElementById('eFMemo').value = item.memo || '';
+  document.getElementById('editOverlay').classList.add('open');
+};
+window.closeEditModal = function() { document.getElementById('editOverlay').classList.remove('open'); editDocId = null; };
+window.selectEditCat = function(btn) {
+  document.querySelectorAll('#editCatGrid .cat-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  editCat = btn.dataset.cat;
+};
+window.updateItem = async function() {
+  const content = document.getElementById('eFContent').value.trim();
+  if (!content) return;
+  await updateDoc(doc(db, 'days', String(activeDay), 'items', editDocId), {
+    cat: editCat,
+    time: document.getElementById('eFTime').value || '00:00',
+    content,
+    memo: document.getElementById('eFMemo').value.trim(),
+  });
+  window.closeEditModal();
+};
+
+// ── DELETE ───────────────────────────────────────────────────────
+window.deleteItem = async function(docId) {
+  if (!confirm('이 일정을 삭제할까요?')) return;
+  await deleteDoc(doc(db, 'days', String(activeDay), 'items', docId));
+};
+
+// ── PHOTO (로컬 미리보기만) ──────────────────────────────────────
+document.getElementById('photoInput').addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    const img = document.getElementById('photoPreview');
+    img.src = ev.target.result;
+    document.getElementById('photoZone').classList.add('has-photo');
+  };
+  reader.readAsDataURL(file);
+});
+
+// ── CLOSE ON BACKDROP ────────────────────────────────────────────
+document.getElementById('addOverlay').addEventListener('click', function(e) {
+  if (e.target === this) window.closeAddModal();
+});
+document.getElementById('editOverlay').addEventListener('click', function(e) {
+  if (e.target === this) window.closeEditModal();
+});
+
+// ── INIT ─────────────────────────────────────────────────────────
+renderDaysGrid();
+</script>
+</body>
+</html>
