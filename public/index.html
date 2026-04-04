@@ -276,7 +276,18 @@
   .badge-etc  { background: #fdf2f2; color: #922b21; }
   .item-text { font-size: 13px; color: var(--ink); line-height: 1.55; }
   .item-memo { font-size: 12px; color: var(--muted); margin-top: 2px; line-height: 1.4; }
-  .item-cat-icon { font-size: 18px; flex-shrink: 0; padding-top: 2px; width: 24px; text-align: center; }
+  .item-cat-icon {
+    font-size: 16px;
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    background: #f5f0ea;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 1px;
+  }
   .item-place { font-size: 12px; color: #1a6fa0; margin-top: 2px; line-height: 1.4; }
   .map-btn { color: #1a6fa0 !important; font-size: 16px !important; }
   .place-input-wrap { display: flex; gap: 6px; align-items: center; }
@@ -579,6 +590,20 @@
     padding-top: 3px;
     flex-shrink: 0;
   }
+  .checklist-day-group {
+    margin-bottom: 4px;
+  }
+  .checklist-day-group-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    color: var(--muted);
+    padding: 10px 1.25rem 5px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border-bottom: 0.5px solid var(--border);
+  }
   .checklist-item-sub {
     font-size: 11px;
     color: #bbb;
@@ -825,9 +850,9 @@ const DAYS = [
   { date:'5/24', weekday:'일', name:'출발&도톤보리', emoji:'✈️' },
   { date:'5/25', weekday:'월', name:'오사카', emoji:'🏯' },
   { date:'5/26', weekday:'화', name:'오사카', emoji:'🦌' },
-  { date:'5/27', weekday:'수', name:'유니버셜', emoji:'⛩️' },
+  { date:'5/27', weekday:'수', name:'유니버셜', emoji:'🎮' },
   { date:'5/28', weekday:'목', name:'교토로 이동', emoji:'🎡' },
-  { date:'5/29', weekday:'금', name:'교토', emoji:'🛍️' },
+  { date:'5/29', weekday:'금', name:'교토', emoji:'⛩️' },
   { date:'5/30', weekday:'토', name:'교토', emoji:'🍜' },
   { date:'5/31', weekday:'일', name:'귀국', emoji:'🏠' },
 ];
@@ -1112,13 +1137,23 @@ function renderChecklist() {
   const sorted = [...allUnchecked, ...allChecked];
 
   let html = '';
+  let lastDayKey = null;
   sorted.forEach(item => {
     const i = item.dayIdx;
     const d = item.day;
     const isChecked = !!item.checked;
     const hasDetail = (item.time && item.time !== '00:00') || item.memo;
+    const dayKey = d.date;
+
+    // 날짜가 바뀔 때만 날짜 헤더 출력
+    if (dayKey !== lastDayKey) {
+      if (lastDayKey !== null) html += `</div>`;
+      html += `<div class="checklist-day-group">
+        <div class="checklist-day-group-label">${d.emoji} ${d.date}(${d.weekday}) · ${d.name}</div>`;
+      lastDayKey = dayKey;
+    }
+
     html += `<div class="checklist-item${isChecked ? ' checklist-item-done' : ''}">
-      <div class="checklist-item-day-tag">${d.emoji} ${d.date}(${d.weekday})</div>
       <div class="checklist-checkbox${isChecked ? ' checked' : ''}" onclick="toggleCheck(${i}, '${item.docId}', ${isChecked})">✓</div>
       <div class="checklist-item-main">
         <div class="checklist-item-text${isChecked ? ' done' : ''}">${escHtml(item.content)}</div>
@@ -1130,6 +1165,7 @@ function renderChecklist() {
       ${item.memo ? `<div class="cl-detail-row">📝 ${escHtml(item.memo)}</div>` : ''}
     </div>`;
   });
+  if (lastDayKey !== null) html += `</div>`;
 
   const body = document.getElementById('checklistBody');
   const progressWrap = document.getElementById('progressBarWrap');
