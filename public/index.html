@@ -276,6 +276,25 @@
   .badge-etc  { background: #fdf2f2; color: #922b21; }
   .item-text { font-size: 13px; color: var(--ink); line-height: 1.55; }
   .item-memo { font-size: 12px; color: var(--muted); margin-top: 2px; line-height: 1.4; }
+  .item-cat-icon { font-size: 18px; flex-shrink: 0; padding-top: 2px; width: 24px; text-align: center; }
+  .item-place { font-size: 12px; color: #1a6fa0; margin-top: 2px; line-height: 1.4; }
+  .map-btn { color: #1a6fa0 !important; font-size: 16px !important; }
+  .place-input-wrap { display: flex; gap: 6px; align-items: center; }
+  .place-input-wrap input { flex: 1; }
+  .place-search-btn {
+    background: var(--red);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 12px;
+    font-family: inherit;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: background 0.15s;
+  }
+  .place-search-btn:hover { background: #a93226; }
   .item-actions { display: flex; gap: 2px; }
   .item-action-btn {
     background: none; border: none;
@@ -548,6 +567,18 @@
     text-decoration: line-through;
     color: var(--muted);
   }
+  .checklist-item-done {
+    opacity: 0.45;
+    transition: opacity 0.3s ease;
+  }
+  .checklist-item-day-tag {
+    font-size: 10px;
+    color: var(--muted);
+    font-weight: 600;
+    min-width: 72px;
+    padding-top: 3px;
+    flex-shrink: 0;
+  }
   .checklist-item-sub {
     font-size: 11px;
     color: #bbb;
@@ -596,7 +627,6 @@
 
 <!-- PHOTO ZONE -->
 <div style="margin-top:1.25rem;">
-  <div class="section-label">가족사진</div>
   <div class="photo-zone" id="photoZone" onclick="document.getElementById('photoInput').click()">
     <div class="photo-placeholder">
       <div class="photo-icon">📸</div>
@@ -617,7 +647,7 @@
   </div>
   <div class="checklist-section" id="checklistSection" style="display:none;">
     <div class="checklist-head">
-      <div class="checklist-head-title" id="checklistTitle">📋 Today's Checklist</div>
+      <div class="checklist-head-title" id="checklistTitle">📋 Checklists</div>
       <div class="checklist-head-sub" id="checklistSub">날짜별 일정에서 ✅ 체크 항목을 추가하면 여기에 표시됩니다</div>
       <div class="progress-bar-wrap" id="progressBarWrap" style="display:none">
         <div class="progress-bar-fill" id="progressBarFill" style="width:0%"></div>
@@ -706,6 +736,13 @@
         <input type="text" id="fContent" placeholder="예: 도톤보리 타코야키 맛집">
       </div>
       <div class="form-group">
+        <label>장소 (선택)</label>
+        <div class="place-input-wrap">
+          <input type="text" id="fPlace" placeholder="예: 도톤보리 이치란 라멘">
+          <button type="button" class="place-search-btn" onclick="searchPlace('fPlace')">🔍 검색</button>
+        </div>
+      </div>
+      <div class="form-group">
         <label>메모 (선택)</label>
         <textarea id="fMemo" placeholder="추가 메모, 주소, 예약 번호 등"></textarea>
       </div>
@@ -744,6 +781,13 @@
       <div class="form-group">
         <label>내용</label>
         <input type="text" id="eFContent">
+      </div>
+      <div class="form-group">
+        <label>장소 (선택)</label>
+        <div class="place-input-wrap">
+          <input type="text" id="eFPlace" placeholder="예: 도톤보리 이치란 라멘">
+          <button type="button" class="place-search-btn" onclick="searchPlace('eFPlace')">🔍 검색</button>
+        </div>
       </div>
       <div class="form-group">
         <label>메모 (선택)</label>
@@ -910,15 +954,20 @@ window.renderPanel = function renderPanel() {
   }
   container.innerHTML = items.map(item => {
     const cat = CAT[item.cat] || CAT.etc;
+    const canMap = ['move','tour','food','stay','etc'].includes(item.cat);
+    const mapQuery = encodeURIComponent(item.place || item.content);
     return `
     <div class="item" id="item-${item.docId}">
+      <div class="item-cat-icon">${cat.emoji}</div>
       <div class="item-time">${escHtml(item.time || '—')}</div>
       <div class="item-main">
-        <span class="item-badge ${cat.cls}">${cat.emoji} ${cat.label}</span>
+        <span class="item-badge ${cat.cls}">${cat.label}</span>
         <div class="item-text">${escHtml(item.content)}</div>
+        ${item.place ? `<div class="item-place">📍 ${escHtml(item.place)}</div>` : ''}
         ${item.memo ? `<div class="item-memo">${escHtml(item.memo)}</div>` : ''}
       </div>
       <div class="item-actions">
+        ${canMap ? `<button class="item-action-btn map-btn" onclick="openMap('${mapQuery}')" title="지도">🗺️</button>` : ''}
         <button class="item-action-btn" onclick="openEditModal('${item.docId}')" title="수정">✎</button>
         <button class="item-action-btn del" onclick="deleteItem('${item.docId}')" title="삭제">✕</button>
       </div>
@@ -945,6 +994,7 @@ window.openAddModal = function() {
   document.querySelector('#catGrid [data-cat="move"]').classList.add('selected');
   document.getElementById('fTime').value = '';
   document.getElementById('fContent').value = '';
+  document.getElementById('fPlace').value = '';
   document.getElementById('fMemo').value = '';
   document.getElementById('addOverlay').classList.add('open');
   setTimeout(() => document.getElementById('fContent').focus(), 350);
@@ -963,6 +1013,7 @@ window.saveItem = async function() {
     cat: selectedCat,
     time: document.getElementById('fTime').value || '00:00',
     content,
+    place: document.getElementById('fPlace').value.trim(),
     memo: document.getElementById('fMemo').value.trim(),
     createdAt: serverTimestamp(),
   });
@@ -982,6 +1033,7 @@ window.openEditModal = function(docId) {
   });
   document.getElementById('eFTime').value = item.time || '';
   document.getElementById('eFContent').value = item.content;
+  document.getElementById('eFPlace').value = item.place || '';
   document.getElementById('eFMemo').value = item.memo || '';
   document.getElementById('editOverlay').classList.add('open');
 };
@@ -998,6 +1050,7 @@ window.updateItem = async function() {
     cat: editCat,
     time: document.getElementById('eFTime').value || '00:00',
     content,
+    place: document.getElementById('eFPlace').value.trim(),
     memo: document.getElementById('eFMemo').value.trim(),
   });
   window.closeEditModal();
@@ -1034,39 +1087,48 @@ document.getElementById('editOverlay').addEventListener('click', function(e) {
 function renderChecklist() {
   let totalItems = 0;
   let doneItems = 0;
-  let html = '';
+
+  // 전체 항목 수집 (날짜 정보 포함)
+  const allUnchecked = [];
+  const allChecked = [];
 
   DAYS.forEach((d, i) => {
     const checks = (itemsCache[i] || [])
       .filter(it => it.cat === 'check')
-      .slice()
-      .sort((a, b) => (a.time || '').localeCompare(b.time || ''));
-
-    if (checks.length === 0) return;
-
-    totalItems += checks.length;
-    doneItems += checks.filter(it => it.checked).length;
-
-    html += `<div class="checklist-day-block">
-      <div class="checklist-day-label">${d.emoji} ${d.date}(${d.weekday}) · ${d.name}</div>`;
+      .map(it => ({ ...it, dayIdx: i, day: d }));
 
     checks.forEach(item => {
-      const isChecked = !!item.checked;
-      const hasDetail = (item.time && item.time !== '00:00') || item.memo;
-      html += `<div class="checklist-item">
-        <div class="checklist-checkbox${isChecked ? ' checked' : ''}" onclick="toggleCheck(${i}, '${item.docId}', ${isChecked})">✓</div>
-        <div class="checklist-item-main">
-          <div class="checklist-item-text${isChecked ? ' done' : ''}">${escHtml(item.content)}</div>
-        </div>
-        ${hasDetail ? `<button class="cl-detail-btn" onclick="toggleCheckDetail(this, ${i}, '${item.docId}')">🔍</button>` : '<span style="width:28px;display:inline-block"></span>'}
-      </div>
-      <div class="cl-detail-box" id="cldetail-${i}-${item.docId}" style="display:none">
-        ${item.time && item.time !== '00:00' ? `<div class="cl-detail-row">🕐 ${escHtml(item.time)}</div>` : ''}
-        ${item.memo ? `<div class="cl-detail-row">📝 ${escHtml(item.memo)}</div>` : ''}
-      </div>`;
+      totalItems++;
+      if (item.checked) {
+        doneItems++;
+        allChecked.push(item);
+      } else {
+        allUnchecked.push(item);
+      }
     });
+  });
 
-    html += `</div>`;
+  // 미완료 먼저, 완료 맨 아래
+  const sorted = [...allUnchecked, ...allChecked];
+
+  let html = '';
+  sorted.forEach(item => {
+    const i = item.dayIdx;
+    const d = item.day;
+    const isChecked = !!item.checked;
+    const hasDetail = (item.time && item.time !== '00:00') || item.memo;
+    html += `<div class="checklist-item${isChecked ? ' checklist-item-done' : ''}">
+      <div class="checklist-item-day-tag">${d.emoji} ${d.date}(${d.weekday})</div>
+      <div class="checklist-checkbox${isChecked ? ' checked' : ''}" onclick="toggleCheck(${i}, '${item.docId}', ${isChecked})">✓</div>
+      <div class="checklist-item-main">
+        <div class="checklist-item-text${isChecked ? ' done' : ''}">${escHtml(item.content)}</div>
+      </div>
+      ${hasDetail ? `<button class="cl-detail-btn" onclick="toggleCheckDetail(this, ${i}, '${item.docId}')">🔍</button>` : '<span style="width:28px;display:inline-block"></span>'}
+    </div>
+    <div class="cl-detail-box" id="cldetail-${i}-${item.docId}" style="display:none">
+      ${item.time && item.time !== '00:00' ? `<div class="cl-detail-row">🕐 ${escHtml(item.time)}</div>` : ''}
+      ${item.memo ? `<div class="cl-detail-row">📝 ${escHtml(item.memo)}</div>` : ''}
+    </div>`;
   });
 
   const body = document.getElementById('checklistBody');
@@ -1102,6 +1164,19 @@ window.toggleCheckDetail = function(btn, dayIdx, docId) {
 
 renderChecklist();
 renderDaysGrid();
+
+// ── 구글지도 연동 ───────────────────────────────────────────────
+window.openMap = function(query) {
+  const url = `https://www.google.com/maps/search/?api=1&query=${query}`;
+  window.open(url, '_blank');
+};
+
+window.searchPlace = function(inputId) {
+  const val = document.getElementById(inputId).value.trim();
+  const searchTerm = val || '장소';
+  const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(searchTerm + ' 오사카')}`;
+  window.open(url, '_blank');
+};
 </script>
 
 <script>
