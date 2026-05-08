@@ -311,43 +311,74 @@
   .photo-upload-area {
     border: 2px dashed var(--border);
     border-radius: 12px;
-    min-height: 80px;
+    min-height: 70px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    overflow: hidden;
     transition: border-color 0.2s;
   }
   .photo-upload-area:hover { border-color: var(--red); }
-  .photo-upload-placeholder { display: flex; flex-direction: column; align-items: center; padding: 16px; }
+  .photo-upload-placeholder { display: flex; flex-direction: column; align-items: center; padding: 14px; }
 
-  /* 일정 첨부사진 */
-  .item-photo-wrap { margin-top: 8px; border-radius: 10px; overflow: hidden; }
+  /* 썸네일 그리드 (모달 내) */
+  .photo-preview-grid {
+    display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px;
+  }
+  .photo-thumb-wrap {
+    position: relative; width: 80px; height: 80px; border-radius: 10px; overflow: hidden;
+  }
+  .photo-thumb {
+    width: 100%; height: 100%; object-fit: cover; display: block;
+  }
+  .photo-thumb-del {
+    position: absolute; top: 3px; right: 3px;
+    background: rgba(0,0,0,0.55); color: white; border: none;
+    border-radius: 50%; width: 20px; height: 20px; font-size: 11px;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    padding: 0;
+  }
+
+  /* 일정 카드 내 사진 그리드 */
+  .item-photos-grid {
+    display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px;
+  }
   .item-photo {
-    width: 100%;
-    max-height: 200px;
+    width: 80px; height: 80px;
     object-fit: cover;
-    border-radius: 10px;
+    border-radius: 8px;
     cursor: pointer;
     display: block;
     transition: opacity 0.2s;
   }
-  .item-photo:hover { opacity: 0.9; }
+  .item-photo:hover { opacity: 0.85; }
 
-  /* 사진 전체보기 오버레이 */
+  /* 사진 전체보기 뷰어 */
   .photo-viewer {
-    position: fixed; inset: 0; background: rgba(0,0,0,0.92);
+    position: fixed; inset: 0; background: rgba(0,0,0,0.93);
     z-index: 9999; display: flex; align-items: center; justify-content: center;
     animation: fadeIn 0.2s ease;
   }
-  .photo-viewer img { max-width: 95vw; max-height: 90vh; border-radius: 8px; object-fit: contain; }
+  .photo-viewer img { max-width: 88vw; max-height: 85vh; border-radius: 8px; object-fit: contain; }
   .photo-viewer-close {
     position: absolute; top: 16px; right: 16px;
     background: rgba(255,255,255,0.15); border: none; color: white;
     font-size: 22px; width: 40px; height: 40px; border-radius: 50%;
     cursor: pointer; display: flex; align-items: center; justify-content: center;
+  }
+  .photo-viewer-prev, .photo-viewer-next {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    background: rgba(255,255,255,0.15); border: none; color: white;
+    font-size: 32px; width: 44px; height: 44px; border-radius: 50%;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+  }
+  .photo-viewer-prev { left: 16px; }
+  .photo-viewer-next { right: 16px; }
+  .photo-viewer-counter {
+    position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+    color: rgba(255,255,255,0.8); font-size: 13px; background: rgba(0,0,0,0.4);
+    padding: 4px 12px; border-radius: 20px;
   }
   .day-select-grid {
     display: grid;
@@ -844,14 +875,13 @@
       <div class="form-group">
         <label>사진 (선택)</label>
         <div class="photo-upload-area" id="fPhotoArea" onclick="document.getElementById('fPhotoInput').click()">
-          <input type="file" id="fPhotoInput" accept="image/*" style="display:none" onchange="previewPhoto('fPhotoInput','fPhotoPreview','fPhotoArea')">
+          <input type="file" id="fPhotoInput" accept="image/*" multiple style="display:none" onchange="previewPhotos('fPhotoInput','fPhotoGrid')">
           <div class="photo-upload-placeholder" id="fPhotoPlaceholder">
             <span style="font-size:24px">📷</span>
-            <span style="font-size:12px;color:var(--muted);margin-top:4px">탭하여 사진 추가</span>
+            <span style="font-size:12px;color:var(--muted);margin-top:4px">탭하여 사진 선택 (여러 장 가능)</span>
           </div>
-          <img id="fPhotoPreview" style="display:none;width:100%;border-radius:10px;max-height:180px;object-fit:cover;">
         </div>
-        <button type="button" id="fPhotoRemove" style="display:none;margin-top:6px;background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;" onclick="removePhotoPreview('fPhotoInput','fPhotoPreview','fPhotoArea','fPhotoPlaceholder','fPhotoRemove')">✕ 사진 제거</button>
+        <div class="photo-preview-grid" id="fPhotoGrid"></div>
       </div>
     </div>
     <div class="modal-footer">
@@ -907,14 +937,13 @@
       <div class="form-group">
         <label>사진 (선택)</label>
         <div class="photo-upload-area" id="eFPhotoArea" onclick="document.getElementById('eFPhotoInput').click()">
-          <input type="file" id="eFPhotoInput" accept="image/*" style="display:none" onchange="previewPhoto('eFPhotoInput','eFPhotoPreview','eFPhotoArea')">
+          <input type="file" id="eFPhotoInput" accept="image/*" multiple style="display:none" onchange="previewPhotos('eFPhotoInput','eFPhotoGrid')">
           <div class="photo-upload-placeholder" id="eFPhotoPlaceholder">
             <span style="font-size:24px">📷</span>
-            <span style="font-size:12px;color:var(--muted);margin-top:4px">탭하여 사진 추가</span>
+            <span style="font-size:12px;color:var(--muted);margin-top:4px">탭하여 사진 선택 (여러 장 가능)</span>
           </div>
-          <img id="eFPhotoPreview" style="display:none;width:100%;border-radius:10px;max-height:180px;object-fit:cover;">
         </div>
-        <button type="button" id="eFPhotoRemove" style="display:none;margin-top:6px;background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;" onclick="removePhotoPreview('eFPhotoInput','eFPhotoPreview','eFPhotoArea','eFPhotoPlaceholder','eFPhotoRemove')">✕ 사진 제거</button>
+        <div class="photo-preview-grid" id="eFPhotoGrid"></div>
       </div>
     </div>
     <div class="modal-footer">
@@ -1092,7 +1121,15 @@ window.renderPanel = function renderPanel() {
         <div class="item-text">${escHtml(item.content)}</div>
         ${item.place ? `<div class="item-place">📍 ${escHtml(item.place)}</div>` : ''}
         ${item.memo ? `<div class="item-memo">${escHtml(item.memo)}</div>` : ''}
-        ${item.photoUrl ? `<div class="item-photo-wrap"><img class="item-photo" src="${item.photoUrl}" onclick="openPhotoViewer('${item.photoUrl}')" alt="첨부사진"></div>` : ''}
+        ${(() => {
+          const urls = item.photoUrls && item.photoUrls.length > 0
+            ? item.photoUrls
+            : (item.photoUrl ? [item.photoUrl] : []);
+          if (urls.length === 0) return '';
+          return `<div class="item-photos-grid">${urls.map((u,idx) =>
+            `<img class="item-photo" src="${u}" onclick="openPhotoViewer('${u}', ${JSON.stringify(urls)}, ${idx})" alt="첨부사진">`
+          ).join('')}</div>`;
+        })()}
       </div>
       <div class="item-actions">
         ${canMap ? `<button class="item-action-btn map-btn" onclick="openMap('${mapQuery}')" title="지도">🗺️</button>` : ''}
@@ -1124,7 +1161,9 @@ window.openAddModal = function() {
   document.getElementById('fContent').value = '';
   document.getElementById('fPlace').value = '';
   document.getElementById('fMemo').value = '';
-  removePhotoPreview('fPhotoInput','fPhotoPreview','fPhotoArea','fPhotoPlaceholder','fPhotoRemove');
+  document.getElementById('fPhotoInput').value = '';
+  document.getElementById('fPhotoGrid').innerHTML = '';
+  document.getElementById('fPhotoPlaceholder').style.display = 'flex';
   document.getElementById('addOverlay').classList.add('open');
   setTimeout(() => document.getElementById('fContent').focus(), 350);
 };
@@ -1143,13 +1182,14 @@ window.saveItem = async function() {
   saveBtn.disabled = true;
 
   try {
-    // 사진 업로드
-    let photoUrl = '';
-    const photoFile = document.getElementById('fPhotoInput').files[0];
-    if (photoFile) {
-      const photoRef = ref(storage, `items/${Date.now()}_${photoFile.name}`);
-      await uploadBytes(photoRef, photoFile);
-      photoUrl = await getDownloadURL(photoRef);
+    // 다중 사진 업로드
+    const photoFiles = document.getElementById('fPhotoInput').files;
+    const photoUrls = [];
+    for (const file of photoFiles) {
+      const photoRef = ref(storage, `items/${Date.now()}_${Math.random().toString(36).slice(2)}_${file.name}`);
+      await uploadBytes(photoRef, file);
+      const url = await getDownloadURL(photoRef);
+      photoUrls.push(url);
     }
 
     const itemsRef = collection(db, 'days', String(activeDay), 'items');
@@ -1159,7 +1199,7 @@ window.saveItem = async function() {
       content,
       place: document.getElementById('fPlace').value.trim(),
       memo: document.getElementById('fMemo').value.trim(),
-      photoUrl,
+      photoUrls,
       createdAt: serverTimestamp(),
     });
     window.closeAddModal();
@@ -1198,17 +1238,21 @@ window.openEditModal = function(docId) {
   document.getElementById('eFContent').value = item.content;
   document.getElementById('eFPlace').value = item.place || '';
   document.getElementById('eFMemo').value = item.memo || '';
-  // 기존 사진 미리보기
-  removePhotoPreview('eFPhotoInput','eFPhotoPreview','eFPhotoArea','eFPhotoPlaceholder','eFPhotoRemove');
-  if (item.photoUrl) {
-    const preview = document.getElementById('eFPhotoPreview');
-    const placeholder = document.getElementById('eFPhotoPlaceholder');
-    const removeBtn = document.getElementById('eFPhotoRemove');
-    preview.src = item.photoUrl;
-    preview.style.display = 'block';
-    placeholder.style.display = 'none';
-    removeBtn.style.display = 'block';
-  }
+  // 기존 사진 그리드 표시
+  document.getElementById('eFPhotoInput').value = '';
+  const eFGrid = document.getElementById('eFPhotoGrid');
+  eFGrid.innerHTML = '';
+  const existingUrls = item.photoUrls && item.photoUrls.length > 0
+    ? item.photoUrls
+    : (item.photoUrl ? [item.photoUrl] : []);
+  window._editExistingPhotoUrls = [...existingUrls];
+  existingUrls.forEach((url, idx) => {
+    const wrap = document.createElement('div');
+    wrap.className = 'photo-thumb-wrap';
+    wrap.innerHTML = `<img src="${url}" class="photo-thumb"><button class="photo-thumb-del" onclick="removeExistingPhoto(${idx})">✕</button>`;
+    eFGrid.appendChild(wrap);
+  });
+  document.getElementById('eFPhotoPlaceholder').style.display = existingUrls.length > 0 ? 'none' : 'flex';
   document.getElementById('editOverlay').classList.add('open');
 };
 window.selectEditDay = function(i, btn) {
@@ -1231,14 +1275,18 @@ window.updateItem = async function() {
   updateBtn.disabled = true;
 
   try {
-    // 사진 업로드
-    let photoUrl = null;
-    const photoFile = document.getElementById('eFPhotoInput').files[0];
-    if (photoFile) {
-      const photoRef = ref(storage, `items/${Date.now()}_${photoFile.name}`);
-      await uploadBytes(photoRef, photoFile);
-      photoUrl = await getDownloadURL(photoRef);
+    // 다중 사진 업로드 (새로 선택한 사진)
+    const newPhotoFiles = document.getElementById('eFPhotoInput').files;
+    const newPhotoUrls = [];
+    for (const file of newPhotoFiles) {
+      const photoRef = ref(storage, `items/${Date.now()}_${Math.random().toString(36).slice(2)}_${file.name}`);
+      await uploadBytes(photoRef, file);
+      const url = await getDownloadURL(photoRef);
+      newPhotoUrls.push(url);
     }
+    // 기존 사진 + 새 사진 합치기
+    const existingUrls = window._editExistingPhotoUrls || [];
+    const mergedUrls = [...existingUrls, ...newPhotoUrls];
 
     const updatedData = {
       cat: editCat,
@@ -1246,9 +1294,9 @@ window.updateItem = async function() {
       content,
       place: document.getElementById('eFPlace').value.trim(),
       memo: document.getElementById('eFMemo').value.trim(),
+      photoUrls: mergedUrls,
       createdAt: serverTimestamp(),
     };
-    if (photoUrl !== null) updatedData.photoUrl = photoUrl;
 
     if (editTargetDay !== null && editTargetDay !== activeDay) {
       await deleteDoc(doc(db, 'days', String(activeDay), 'items', editDocId));
@@ -1385,41 +1433,73 @@ renderChecklist();
 renderDaysGrid();
 
 // ── 사진 관련 헬퍼 ─────────────────────────────────────────────
-window.previewPhoto = function(inputId, previewId, areaId) {
-  const file = document.getElementById(inputId).files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    const preview = document.getElementById(previewId);
-    const area = document.getElementById(areaId);
-    const placeholder = area.querySelector('.photo-upload-placeholder');
-    const removeBtn = area.parentElement.querySelector('button[id$="Remove"]');
-    preview.src = e.target.result;
-    preview.style.display = 'block';
-    if (placeholder) placeholder.style.display = 'none';
-    if (removeBtn) removeBtn.style.display = 'block';
-  };
-  reader.readAsDataURL(file);
-};
-
-window.removePhotoPreview = function(inputId, previewId, areaId, placeholderId, removeBtnId) {
-  const input = document.getElementById(inputId);
-  const preview = document.getElementById(previewId);
+window.previewPhotos = function(inputId, gridId) {
+  const files = document.getElementById(inputId).files;
+  const grid = document.getElementById(gridId);
+  const areaId = inputId === 'fPhotoInput' ? 'fPhotoArea' : 'eFPhotoArea';
+  const placeholderId = inputId === 'fPhotoInput' ? 'fPhotoPlaceholder' : 'eFPhotoPlaceholder';
   const placeholder = document.getElementById(placeholderId);
-  const removeBtn = document.getElementById(removeBtnId);
-  if (input) input.value = '';
-  if (preview) { preview.src = ''; preview.style.display = 'none'; }
-  if (placeholder) placeholder.style.display = 'flex';
-  if (removeBtn) removeBtn.style.display = 'none';
+
+  Array.from(files).forEach(file => {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const wrap = document.createElement('div');
+      wrap.className = 'photo-thumb-wrap';
+      const img = document.createElement('img');
+      img.src = e.target.result;
+      img.className = 'photo-thumb';
+      const del = document.createElement('button');
+      del.className = 'photo-thumb-del';
+      del.textContent = '✕';
+      del.onclick = function() { wrap.remove(); };
+      wrap.appendChild(img);
+      wrap.appendChild(del);
+      grid.appendChild(wrap);
+    };
+    reader.readAsDataURL(file);
+  });
+  if (placeholder && files.length > 0) placeholder.style.display = 'none';
 };
 
-window.openPhotoViewer = function(url) {
+window.removeExistingPhoto = function(idx) {
+  if (!window._editExistingPhotoUrls) return;
+  window._editExistingPhotoUrls.splice(idx, 1);
+  // 그리드 재렌더링
+  const grid = document.getElementById('eFPhotoGrid');
+  grid.innerHTML = '';
+  window._editExistingPhotoUrls.forEach((url, i) => {
+    const wrap = document.createElement('div');
+    wrap.className = 'photo-thumb-wrap';
+    wrap.innerHTML = `<img src="${url}" class="photo-thumb"><button class="photo-thumb-del" onclick="removeExistingPhoto(${i})">✕</button>`;
+    grid.appendChild(wrap);
+  });
+};
+
+window.openPhotoViewer = function(url, urls, idx) {
+  const allUrls = urls || [url];
+  let current = idx || 0;
+
   const viewer = document.createElement('div');
   viewer.className = 'photo-viewer';
   viewer.innerHTML = `
     <button class="photo-viewer-close" onclick="this.parentElement.remove()">✕</button>
-    <img src="${url}" alt="사진">
+    <button class="photo-viewer-prev" id="pvPrev" style="${allUrls.length <= 1 ? 'display:none' : ''}">‹</button>
+    <img id="pvImg" src="${allUrls[current]}" alt="사진">
+    <button class="photo-viewer-next" id="pvNext" style="${allUrls.length <= 1 ? 'display:none' : ''}">›</button>
+    <div class="photo-viewer-counter" id="pvCounter" style="${allUrls.length <= 1 ? 'display:none' : ''}">${current+1} / ${allUrls.length}</div>
   `;
+  viewer.querySelector('#pvPrev').onclick = function(e) {
+    e.stopPropagation();
+    current = (current - 1 + allUrls.length) % allUrls.length;
+    viewer.querySelector('#pvImg').src = allUrls[current];
+    viewer.querySelector('#pvCounter').textContent = `${current+1} / ${allUrls.length}`;
+  };
+  viewer.querySelector('#pvNext').onclick = function(e) {
+    e.stopPropagation();
+    current = (current + 1) % allUrls.length;
+    viewer.querySelector('#pvImg').src = allUrls[current];
+    viewer.querySelector('#pvCounter').textContent = `${current+1} / ${allUrls.length}`;
+  };
   viewer.onclick = function(e) { if (e.target === viewer) viewer.remove(); };
   document.body.appendChild(viewer);
 };
