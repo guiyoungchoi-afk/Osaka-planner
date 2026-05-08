@@ -1126,8 +1126,12 @@ window.renderPanel = function renderPanel() {
             ? item.photoUrls
             : (item.photoUrl ? [item.photoUrl] : []);
           if (urls.length === 0) return '';
+          // urls를 data 속성으로 저장해서 따옴표 충돌 방지
+          const docId = item.docId;
+          window.__photoCache = window.__photoCache || {};
+          window.__photoCache[docId] = urls;
           return `<div class="item-photos-grid">${urls.map((u,idx) =>
-            `<img class="item-photo" src="${u}" onclick="openPhotoViewer('${u}', ${JSON.stringify(urls)}, ${idx})" alt="첨부사진">`
+            `<img class="item-photo" src="${u}" onclick="openPhotoViewerById('${docId}', ${idx})" alt="첨부사진">`
           ).join('')}</div>`;
         })()}
       </div>
@@ -1488,33 +1492,46 @@ window.removeExistingPhoto = function(idx) {
   });
 };
 
-window.openPhotoViewer = function(url, urls, idx) {
-  const allUrls = urls || [url];
-  let current = idx || 0;
-
+function showPhotoViewer(allUrls, startIdx) {
+  let current = startIdx || 0;
   const viewer = document.createElement('div');
   viewer.className = 'photo-viewer';
-  viewer.innerHTML = `
-    <button class="photo-viewer-close" onclick="this.parentElement.remove()">✕</button>
-    <button class="photo-viewer-prev" id="pvPrev" style="${allUrls.length <= 1 ? 'display:none' : ''}">‹</button>
-    <img id="pvImg" src="${allUrls[current]}" alt="사진">
-    <button class="photo-viewer-next" id="pvNext" style="${allUrls.length <= 1 ? 'display:none' : ''}">›</button>
-    <div class="photo-viewer-counter" id="pvCounter" style="${allUrls.length <= 1 ? 'display:none' : ''}">${current+1} / ${allUrls.length}</div>
-  `;
-  viewer.querySelector('#pvPrev').onclick = function(e) {
-    e.stopPropagation();
-    current = (current - 1 + allUrls.length) % allUrls.length;
-    viewer.querySelector('#pvImg').src = allUrls[current];
-    viewer.querySelector('#pvCounter').textContent = `${current+1} / ${allUrls.length}`;
+
+  const render = () => {
+    viewer.innerHTML = `
+      <button class="photo-viewer-close">✕</button>
+      ${allUrls.length > 1 ? '<button class="photo-viewer-prev">‹</button>' : ''}
+      <img id="pvImg" src="${allUrls[current]}" alt="사진">
+      ${allUrls.length > 1 ? '<button class="photo-viewer-next">›</button>' : ''}
+      ${allUrls.length > 1 ? `<div class="photo-viewer-counter">${current+1} / ${allUrls.length}</div>` : ''}
+    `;
+    viewer.querySelector('.photo-viewer-close').onclick = () => viewer.remove();
+    if (allUrls.length > 1) {
+      viewer.querySelector('.photo-viewer-prev').onclick = (e) => {
+        e.stopPropagation();
+        current = (current - 1 + allUrls.length) % allUrls.length;
+        render();
+      };
+      viewer.querySelector('.photo-viewer-next').onclick = (e) => {
+        e.stopPropagation();
+        current = (current + 1) % allUrls.length;
+        render();
+      };
+    }
   };
-  viewer.querySelector('#pvNext').onclick = function(e) {
-    e.stopPropagation();
-    current = (current + 1) % allUrls.length;
-    viewer.querySelector('#pvImg').src = allUrls[current];
-    viewer.querySelector('#pvCounter').textContent = `${current+1} / ${allUrls.length}`;
-  };
-  viewer.onclick = function(e) { if (e.target === viewer) viewer.remove(); };
+  render();
+  viewer.onclick = (e) => { if (e.target === viewer) viewer.remove(); };
   document.body.appendChild(viewer);
+}
+
+window.openPhotoViewer = function(url, urls, idx) {
+  showPhotoViewer(urls || [url], idx || 0);
+};
+
+window.openPhotoViewerById = function(docId, idx) {
+  const urls = (window.__photoCache && window.__photoCache[docId]) || [];
+  if (urls.length === 0) return;
+  showPhotoViewer(urls, idx);
 };
 
 // ── 구글지도 연동 ───────────────────────────────────────────────
