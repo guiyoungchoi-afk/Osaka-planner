@@ -959,9 +959,7 @@ import {
   getFirestore, doc, getDoc, setDoc, onSnapshot, collection, addDoc,
   deleteDoc, updateDoc, query, orderBy, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-import {
-  getStorage, ref, uploadBytes, getDownloadURL, deleteObject
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+
 
 // ── FIREBASE ─────────────────────────────────────────────────────
 const firebaseConfig = {
@@ -974,7 +972,9 @@ const firebaseConfig = {
 };
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-const storage = getStorage(app);
+// Cloudinary 설정
+const CLOUDINARY_CLOUD = "diogojypo";
+const CLOUDINARY_PRESET = "osaka_planner";
 
 // ── DATA ─────────────────────────────────────────────────────────
 const DAYS = [
@@ -1182,13 +1182,11 @@ window.saveItem = async function() {
   saveBtn.disabled = true;
 
   try {
-    // 다중 사진 업로드
+    // 다중 사진 Cloudinary 업로드
     const photoFiles = document.getElementById('fPhotoInput').files;
     const photoUrls = [];
     for (const file of photoFiles) {
-      const photoRef = ref(storage, `items/${Date.now()}_${Math.random().toString(36).slice(2)}_${file.name}`);
-      await uploadBytes(photoRef, file);
-      const url = await getDownloadURL(photoRef);
+      const url = await uploadToCloudinary(file);
       photoUrls.push(url);
     }
 
@@ -1275,13 +1273,11 @@ window.updateItem = async function() {
   updateBtn.disabled = true;
 
   try {
-    // 다중 사진 업로드 (새로 선택한 사진)
+    // 다중 사진 Cloudinary 업로드 (새로 선택한 사진)
     const newPhotoFiles = document.getElementById('eFPhotoInput').files;
     const newPhotoUrls = [];
     for (const file of newPhotoFiles) {
-      const photoRef = ref(storage, `items/${Date.now()}_${Math.random().toString(36).slice(2)}_${file.name}`);
-      await uploadBytes(photoRef, file);
-      const url = await getDownloadURL(photoRef);
+      const url = await uploadToCloudinary(file);
       newPhotoUrls.push(url);
     }
     // 기존 사진 + 새 사진 합치기
@@ -1431,6 +1427,23 @@ window.toggleCheckDetail = function(btn, dayIdx, docId) {
 
 renderChecklist();
 renderDaysGrid();
+
+// ── Cloudinary 업로드 ──────────────────────────────────────────
+async function uploadToCloudinary(file) {
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('upload_preset', CLOUDINARY_PRESET);
+  formData.append('folder', 'osaka-planner');
+
+  const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/image/upload`, {
+    method: 'POST',
+    body: formData,
+  });
+  if (!res.ok) throw new Error('Cloudinary 업로드 실패');
+  const data = await res.json();
+  // 자동 압축: 최대 1200px, 품질 auto
+  return data.secure_url.replace('/upload/', '/upload/w_1200,q_auto,f_auto/');
+}
 
 // ── 사진 관련 헬퍼 ─────────────────────────────────────────────
 window.previewPhotos = function(inputId, gridId) {
