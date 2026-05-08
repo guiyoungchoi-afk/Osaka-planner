@@ -306,6 +306,33 @@
     transition: background 0.15s;
   }
   .place-search-btn:hover { background: #a93226; }
+  .day-select-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+  }
+  .day-select-btn {
+    background: #f5f0ea;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 7px 4px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+  .day-select-btn.selected {
+    background: var(--red);
+    border-color: var(--red);
+    color: white;
+  }
+  .day-select-btn.selected .day-select-weekday { color: rgba(255,255,255,0.75); }
+  .day-select-emoji { font-size: 14px; line-height: 1; }
+  .day-select-date { font-size: 12px; font-weight: 700; }
+  .day-select-weekday { font-size: 10px; color: var(--muted); }
   .item-actions { display: flex; gap: 2px; }
   .item-action-btn {
     background: none; border: none;
@@ -800,6 +827,10 @@
         </div>
       </div>
       <div class="form-group">
+        <label>날짜</label>
+        <div class="day-select-grid" id="eFDayGrid"></div>
+      </div>
+      <div class="form-group">
         <label>시간</label>
         <input type="time" id="eFTime">
       </div>
@@ -848,8 +879,8 @@ const db = getFirestore(app);
 // ── DATA ─────────────────────────────────────────────────────────
 const DAYS = [
   { date:'5/24', weekday:'일', name:'출발&도톤보리', emoji:'✈️' },
-  { date:'5/25', weekday:'월', name:'오사카', emoji:'👘' },
-  { date:'5/26', weekday:'화', name:'오사카', emoji:'🏯' },
+  { date:'5/25', weekday:'월', name:'오사카', emoji:'🏯' },
+  { date:'5/26', weekday:'화', name:'오사카', emoji:'🦌' },
   { date:'5/27', weekday:'수', name:'유니버셜', emoji:'🎮' },
   { date:'5/28', weekday:'목', name:'교토로 이동', emoji:'🎡' },
   { date:'5/29', weekday:'금', name:'교토', emoji:'⛩️' },
@@ -1047,12 +1078,26 @@ window.saveItem = async function() {
 
 // ── EDIT MODAL ───────────────────────────────────────────────────
 let editCat = 'move';
+let editTargetDay = null;
 window.openEditModal = function(docId) {
   const items = itemsCache[activeDay] || [];
   const item = items.find(i => i.docId === docId);
   if (!item) return;
   editDocId = docId;
   editCat = item.cat;
+  editTargetDay = activeDay;
+
+  // 날짜 선택 그리드 렌더링
+  const grid = document.getElementById('eFDayGrid');
+  grid.innerHTML = DAYS.map((d, i) => `
+    <button class="day-select-btn${i === activeDay ? ' selected' : ''}"
+      onclick="selectEditDay(${i}, this)">
+      <span class="day-select-emoji">${d.emoji}</span>
+      <span class="day-select-date">${d.date}</span>
+      <span class="day-select-weekday">${d.weekday}</span>
+    </button>
+  `).join('');
+
   document.querySelectorAll('#editCatGrid .cat-btn').forEach(b => {
     b.classList.toggle('selected', b.dataset.cat === item.cat);
   });
@@ -1061,6 +1106,11 @@ window.openEditModal = function(docId) {
   document.getElementById('eFPlace').value = item.place || '';
   document.getElementById('eFMemo').value = item.memo || '';
   document.getElementById('editOverlay').classList.add('open');
+};
+window.selectEditDay = function(i, btn) {
+  editTargetDay = i;
+  document.querySelectorAll('#eFDayGrid .day-select-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
 };
 window.closeEditModal = function() { document.getElementById('editOverlay').classList.remove('open'); editDocId = null; };
 window.selectEditCat = function(btn) {
@@ -1071,13 +1121,24 @@ window.selectEditCat = function(btn) {
 window.updateItem = async function() {
   const content = document.getElementById('eFContent').value.trim();
   if (!content) return;
-  await updateDoc(doc(db, 'days', String(activeDay), 'items', editDocId), {
+  const updatedData = {
     cat: editCat,
     time: document.getElementById('eFTime').value || '00:00',
     content,
     place: document.getElementById('eFPlace').value.trim(),
     memo: document.getElementById('eFMemo').value.trim(),
-  });
+    createdAt: serverTimestamp(),
+  };
+
+  if (editTargetDay !== null && editTargetDay !== activeDay) {
+    // 날짜가 바뀐 경우: 기존 날짜에서 삭제 후 새 날짜에 추가
+    await deleteDoc(doc(db, 'days', String(activeDay), 'items', editDocId));
+    await addDoc(collection(db, 'days', String(editTargetDay), 'items'), updatedData);
+  } else {
+    // 같은 날짜: 그냥 업데이트
+    delete updatedData.createdAt;
+    await updateDoc(doc(db, 'days', String(activeDay), 'items', editDocId), updatedData);
+  }
   window.closeEditModal();
 };
 
