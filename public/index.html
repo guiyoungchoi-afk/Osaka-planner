@@ -849,14 +849,14 @@
 </div>
 
 <!-- 삭제 확인 다이얼로그 -->
-<div id="confirmOverlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:9998; align-items:center; justify-content:center;">
+<div id="confirmOverlay" onclick="if(event.target===this)closeConfirm()" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:9998; align-items:center; justify-content:center;">
   <div class="confirm-dialog">
     <div class="confirm-icon">🗑️</div>
     <div class="confirm-title" id="confirmTitle">정말 삭제할까요?</div>
     <div class="confirm-msg" id="confirmMsg">삭제한 일정은 복구할 수 없어요.</div>
     <div class="confirm-buttons">
       <button class="confirm-btn-cancel" onclick="closeConfirm()">취소</button>
-      <button class="confirm-btn-ok" id="confirmOkBtn">삭제</button>
+      <button class="confirm-btn-ok" onclick="doConfirmOk()">삭제</button>
     </div>
   </div>
 </div>
@@ -1619,24 +1619,22 @@ window.openPhotoViewerById = function(docId, idx) {
 
 // ── 삭제 확인 다이얼로그 ────────────────────────────────────────
 let _confirmCallback = null;
-function showConfirm(title, msg, onOk) {
+window.showConfirm = function(title, msg, onOk) {
   _confirmCallback = onOk;
   document.getElementById('confirmTitle').textContent = title;
   document.getElementById('confirmMsg').textContent = msg;
   const overlay = document.getElementById('confirmOverlay');
   overlay.style.cssText = 'display:flex; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:9998; align-items:center; justify-content:center;';
-  document.getElementById('confirmOkBtn').onclick = async () => {
-    closeConfirm();
-    if (_confirmCallback) await _confirmCallback();
-  };
-}
+};
+window.doConfirmOk = async function() {
+  const cb = _confirmCallback;
+  window.closeConfirm();
+  if (cb) await cb();
+};
 window.closeConfirm = function() {
-  document.getElementById('confirmOverlay').style.display = 'none';
+  document.getElementById('confirmOverlay').style.cssText = 'display:none;';
   _confirmCallback = null;
 };
-document.getElementById('confirmOverlay').addEventListener('click', function(e) {
-  if (e.target === this) closeConfirm();
-});
 
 // ── 자동백업 (JSON 다운로드) ─────────────────────────────────────
 window.downloadBackup = function() {
