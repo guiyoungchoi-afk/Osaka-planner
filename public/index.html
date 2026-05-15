@@ -849,7 +849,7 @@
 </div>
 
 <!-- 삭제 확인 다이얼로그 -->
-<div id="confirmOverlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:9998; display:none; align-items:center; justify-content:center;">
+<div id="confirmOverlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:9998; align-items:center; justify-content:center;">
   <div class="confirm-dialog">
     <div class="confirm-icon">🗑️</div>
     <div class="confirm-title" id="confirmTitle">정말 삭제할까요?</div>
@@ -1032,13 +1032,13 @@ const CLOUDINARY_PRESET = "osaka_planner";
 
 // ── DATA ─────────────────────────────────────────────────────────
 const DAYS = [
-  { date:'5/24', weekday:'일', name:'출발&교토', emoji:'✈️' },
-  { date:'5/25', weekday:'월', name:'교토', emoji:'⛩️' },
-  { date:'5/26', weekday:'화', name:'교토', emoji:'🏯' },
-  { date:'5/27', weekday:'수', name:'오사카로 이동', emoji:'🚃' },
-  { date:'5/28', weekday:'목', name:'오사카', emoji:'🎡' },
-  { date:'5/29', weekday:'금', name:'유니버셜', emoji:'🎮' },
-  { date:'5/30', weekday:'토', name:'오사카', emoji:'🍜' },
+  { date:'5/24', weekday:'일', name:'출발&도톤보리', emoji:'✈️' },
+  { date:'5/25', weekday:'월', name:'오사카', emoji:'🏯' },
+  { date:'5/26', weekday:'화', name:'오사카', emoji:'🦌' },
+  { date:'5/27', weekday:'수', name:'유니버셜', emoji:'🎮' },
+  { date:'5/28', weekday:'목', name:'교토로 이동', emoji:'🎡' },
+  { date:'5/29', weekday:'금', name:'교토', emoji:'⛩️' },
+  { date:'5/30', weekday:'토', name:'교토', emoji:'🍜' },
   { date:'5/31', weekday:'일', name:'귀국', emoji:'🏠' },
 ];
 const CAT = {
@@ -1624,7 +1624,7 @@ function showConfirm(title, msg, onOk) {
   document.getElementById('confirmTitle').textContent = title;
   document.getElementById('confirmMsg').textContent = msg;
   const overlay = document.getElementById('confirmOverlay');
-  overlay.style.display = 'flex';
+  overlay.style.cssText = 'display:flex; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:9998; align-items:center; justify-content:center;';
   document.getElementById('confirmOkBtn').onclick = async () => {
     closeConfirm();
     if (_confirmCallback) await _confirmCallback();
