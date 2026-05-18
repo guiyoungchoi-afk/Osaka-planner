@@ -275,7 +275,14 @@
   .badge-check { background: #eafaf1; color: #1a7a40; }
   .badge-etc  { background: #fdf2f2; color: #922b21; }
   .item-text { font-size: 13px; color: var(--ink); line-height: 1.55; }
-  .item-memo { font-size: 12px; color: var(--muted); margin-top: 2px; line-height: 1.4; }
+  .item-memo { font-size: 12px; color: var(--muted); margin-top: 2px; line-height: 1.5; white-space: pre-wrap; word-break: break-word; }
+  .item-memo-collapsed { display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+  .item-memo-expanded { display: block; }
+  .memo-toggle-btn {
+    background: none; border: none; color: var(--red2);
+    font-size: 11px; font-family: inherit; cursor: pointer;
+    padding: 2px 0; margin-top: 1px; font-weight: 600;
+  }
   .item-cat-icon {
     font-size: 16px;
     flex-shrink: 0;
@@ -1032,13 +1039,13 @@ const CLOUDINARY_PRESET = "osaka_planner";
 
 // ── DATA ─────────────────────────────────────────────────────────
 const DAYS = [
-  { date:'5/24', weekday:'일', name:'출발&교토로', emoji:'✈️' },
-  { date:'5/25', weekday:'월', name:'교토', emoji:'⛩️' },
-  { date:'5/26', weekday:'화', name:'교토', emoji:'🏯' },
-  { date:'5/27', weekday:'수', name:'오사카로 이동', emoji:'🚃' },
-  { date:'5/28', weekday:'목', name:'오사카', emoji:'🎡' },
-  { date:'5/29', weekday:'금', name:'유니버셜', emoji:'🎮' },
-  { date:'5/30', weekday:'토', name:'오사카', emoji:'🍜' },
+  { date:'5/24', weekday:'일', name:'출발&도톤보리', emoji:'✈️' },
+  { date:'5/25', weekday:'월', name:'오사카', emoji:'🏯' },
+  { date:'5/26', weekday:'화', name:'오사카', emoji:'🦌' },
+  { date:'5/27', weekday:'수', name:'유니버셜', emoji:'🎮' },
+  { date:'5/28', weekday:'목', name:'교토로 이동', emoji:'🎡' },
+  { date:'5/29', weekday:'금', name:'교토', emoji:'⛩️' },
+  { date:'5/30', weekday:'토', name:'교토', emoji:'🍜' },
   { date:'5/31', weekday:'일', name:'귀국', emoji:'🏠' },
 ];
 const CAT = {
@@ -1188,7 +1195,10 @@ window.renderPanel = function renderPanel() {
         <span class="item-badge ${cat.cls}">${cat.label}</span>
         <div class="item-text">${escHtml(item.content)}</div>
         ${item.place ? `<div class="item-place">📍 ${escHtml(item.place)}</div>` : ''}
-        ${item.memo ? `<div class="item-memo">${escHtml(item.memo)}</div>` : ''}
+        ${item.memo ? `<div class="item-memo-wrap">
+          <div class="item-memo item-memo-collapsed" id="memo-${item.docId}">${escHtml(item.memo)}</div>
+          ${item.memo.length > 40 ? `<button class="memo-toggle-btn" onclick="toggleMemo('${item.docId}', this)">더 보기 ▾</button>` : ''}
+        </div>` : ''}
         ${(() => {
           const urls = item.photoUrls && item.photoUrls.length > 0
             ? item.photoUrls
@@ -1615,6 +1625,20 @@ window.openPhotoViewerById = function(docId, idx) {
   const urls = (window.__photoCache && window.__photoCache[docId]) || [];
   if (urls.length === 0) return;
   showPhotoViewer(urls, idx);
+};
+
+// ── 메모 접기/펼치기 ────────────────────────────────────────────
+window.toggleMemo = function(docId, btn) {
+  const memo = document.getElementById('memo-' + docId);
+  if (memo.classList.contains('item-memo-collapsed')) {
+    memo.classList.remove('item-memo-collapsed');
+    memo.classList.add('item-memo-expanded');
+    btn.textContent = '접기 ▴';
+  } else {
+    memo.classList.remove('item-memo-expanded');
+    memo.classList.add('item-memo-collapsed');
+    btn.textContent = '더 보기 ▾';
+  }
 };
 
 // ── 삭제 확인 다이얼로그 ────────────────────────────────────────
