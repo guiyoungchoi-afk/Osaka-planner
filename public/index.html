@@ -182,6 +182,21 @@
   .dc-date { font-size: 16px; font-weight: 700; color: var(--ink); display: block; }
   .dc-weekday { font-size: 10px; color: var(--muted); display: block; margin-top: 1px; }
   .dc-name { font-size: 10px; color: var(--muted); display: block; margin-top: 2px; font-weight: 500; }
+  .dc-weather {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    margin-top: 4px;
+    font-size: 9px;
+    color: var(--muted);
+    line-height: 1;
+  }
+  .dc-weather-icon { font-size: 13px; line-height: 1; }
+  .dc-weather-temp { font-size: 9px; font-weight: 600; color: var(--muted); }
+  .day-card.active .dc-weather,
+  .day-card.active .dc-weather-temp { color: rgba(255,255,255,0.8); }
+  .dc-weather-loading { font-size: 8px; opacity: 0.5; }
   .dot-badge {
     width: 7px; height: 7px;
     background: #27ae60;
@@ -1039,14 +1054,14 @@ const CLOUDINARY_PRESET = "osaka_planner";
 
 // ── DATA ─────────────────────────────────────────────────────────
 const DAYS = [
-   { date:'5/24', weekday:'일', name:'출발&교토로 이동', emoji:'✈️' },
-  { date:'5/25', weekday:'월', name:'교토', emoji:'⛩️' },
-  { date:'5/26', weekday:'화', name:'교토', emoji:'🏯' },
-  { date:'5/27', weekday:'수', name:'오사카로 이동', emoji:'🚃' },
-  { date:'5/28', weekday:'목', name:'오사카', emoji:'🎡' },
-  { date:'5/29', weekday:'금', name:'유니버셜', emoji:'🎮' },
-  { date:'5/30', weekday:'토', name:'오사카', emoji:'🍜' },
-  { date:'5/31', weekday:'일', name:'귀국', emoji:'🏠' }
+  { date:'5/24', weekday:'일', name:'출발&도톤보리', emoji:'✈️' },
+  { date:'5/25', weekday:'월', name:'오사카', emoji:'🏯' },
+  { date:'5/26', weekday:'화', name:'오사카', emoji:'🦌' },
+  { date:'5/27', weekday:'수', name:'유니버셜', emoji:'🎮' },
+  { date:'5/28', weekday:'목', name:'교토로 이동', emoji:'🎡' },
+  { date:'5/29', weekday:'금', name:'교토', emoji:'⛩️' },
+  { date:'5/30', weekday:'토', name:'교토', emoji:'🍜' },
+  { date:'5/31', weekday:'일', name:'귀국', emoji:'🏠' },
 ];
 const CAT = {
   move:  { label:'이동', emoji:'🚃', cls:'badge-move' },
@@ -1104,6 +1119,85 @@ DAYS.forEach((_, i) => {
 });
 
 // ── DAYS GRID ────────────────────────────────────────────────────
+// ── 날씨 API (Open-Meteo, 무료·API키 불필요) ──────────────────
+// 여행 날짜: 2025.05.24~05.31, 오사카(0~4일): 34.69, 135.50 / 교토(5~7일): 35.01, 135.76
+const WEATHER_LOCATIONS = [
+  { lat: 34.6937, lon: 135.5023 }, // 5/24 오사카
+  { lat: 34.6937, lon: 135.5023 }, // 5/25 오사카
+  { lat: 34.6937, lon: 135.5023 }, // 5/26 오사카
+  { lat: 34.6937, lon: 135.5023 }, // 5/27 유니버셜(오사카)
+  { lat: 34.6937, lon: 135.5023 }, // 5/28 오사카→교토
+  { lat: 35.0116, lon: 135.7681 }, // 5/29 교토
+  { lat: 35.0116, lon: 135.7681 }, // 5/30 교토
+  { lat: 34.6937, lon: 135.5023 }, // 5/31 귀국(오사카)
+];
+
+// WMO 날씨코드 → 이모지 + 설명
+function weatherCodeToEmoji(code) {
+  if (code === 0) return { icon: '☀️', label: '맑음' };
+  if (code <= 2)  return { icon: '🌤️', label: '구름조금' };
+  if (code <= 3)  return { icon: '☁️', label: '흐림' };
+  if (code <= 48) return { icon: '🌫️', label: '안개' };
+  if (code <= 55) return { icon: '🌦️', label: '이슬비' };
+  if (code <= 65) return { icon: '🌧️', label: '비' };
+  if (code <= 77) return { icon: '❄️', label: '눈' };
+  if (code <= 82) return { icon: '🌧️', label: '소나기' };
+  if (code <= 99) return { icon: '⛈️', label: '뇌우' };
+  return { icon: '🌡️', label: '' };
+}
+
+let weatherCache = {};
+
+async function fetchWeather() {
+  // 오사카, 교토 두 지점만 호출
+  const locations = [
+    { key: 'osaka', lat: 34.6937, lon: 135.5023 },
+    { key: 'kyoto', lat: 35.0116, lon: 135.7681 },
+  ];
+
+  for (const loc of locations) {
+    try {
+      const url = `https://api.open-meteo.com/v1/forecast?latitude=${loc.lat}&longitude=${loc.lon}&daily=weathercode,temperature_2m_max,temperature_2m_min&timezone=Asia%2FTokyo&start_date=2025-05-24&end_date=2025-05-31`;
+      const res = await fetch(url);
+      const data = await res.json();
+      const dates = data.daily.time;
+      dates.forEach((date, i) => {
+        weatherCache[loc.key + '_' + date] = {
+          code: data.daily.weathercode[i],
+          max: Math.round(data.daily.temperature_2m_max[i]),
+          min: Math.round(data.daily.temperature_2m_min[i]),
+        };
+      });
+    } catch(e) {
+      console.log('날씨 로드 실패:', e);
+    }
+  }
+  updateWeatherCards();
+}
+
+function updateWeatherCards() {
+  const dateKeys = [
+    '2025-05-24','2025-05-25','2025-05-26','2025-05-27',
+    '2025-05-28','2025-05-29','2025-05-30','2025-05-31'
+  ];
+  const locationKeys = [
+    'osaka','osaka','osaka','osaka','osaka','kyoto','kyoto','osaka'
+  ];
+  dateKeys.forEach((date, i) => {
+    const el = document.getElementById('weather-' + i);
+    if (!el) return;
+    const key = locationKeys[i] + '_' + date;
+    const w = weatherCache[key];
+    if (!w) {
+      el.innerHTML = '<span class="dc-weather-loading">-</span>';
+      return;
+    }
+    const { icon, label } = weatherCodeToEmoji(w.code);
+    el.innerHTML = `<span class="dc-weather-icon">${icon}</span><span class="dc-weather-temp">${w.max}°/${w.min}°</span>`;
+    el.title = label;
+  });
+}
+
 window.renderDaysGrid = function renderDaysGrid() {
   const grid = document.getElementById('daysGrid');
   grid.innerHTML = '';
@@ -1130,10 +1224,16 @@ window.renderDaysGrid = function renderDaysGrid() {
     nameSpan.className = 'dc-name';
     nameSpan.textContent = d.name;
 
+    const weatherSpan = document.createElement('div');
+    weatherSpan.className = 'dc-weather';
+    weatherSpan.id = 'weather-' + i;
+    weatherSpan.innerHTML = '<span class="dc-weather-loading">날씨 로딩중</span>';
+
     card.appendChild(emojiSpan);
     card.appendChild(dateSpan);
     card.appendChild(weekdaySpan);
     card.appendChild(nameSpan);
+    card.appendChild(weatherSpan);
 
     if (items.length > 0) {
       const dot = document.createElement('div');
@@ -1524,6 +1624,7 @@ window.toggleCheckDetail = function(btn, dayIdx, docId) {
 
 renderChecklist();
 renderDaysGrid();
+fetchWeather();
 
 // ── Cloudinary 업로드 ──────────────────────────────────────────
 async function uploadToCloudinary(file) {
