@@ -2,10 +2,17 @@
 <html lang="ko">
 <head>
 <link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#4A90E2">
+<meta name="theme-color" content="#c4522d">
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>조씨네 Osaka Planner</title>
+<!-- PWA iOS 지원 -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="오사카 여행">
+<link rel="apple-touch-icon" href="/icon-192.png">
+<!-- PWA 설명 -->
+<meta name="description" content="조씨네 오사카 여행 플래너 2026">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -1874,6 +1881,16 @@ const DEFAULT_PHOTO = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAA
         .catch(err => console.log('서비스 워커 등록 실패:', err));
     });
   }
+</script>
+<script>
+// ── Service Worker 등록 (PWA 오프라인 지원) ──
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .then(reg => console.log('SW 등록 완료:', reg.scope))
+      .catch(err => console.log('SW 등록 실패:', err));
+  });
+}
 </script>
 </body>
 </html>
