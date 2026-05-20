@@ -1,18 +1,30 @@
 {
-  "name": "오사카 여행 플래너",
-  "short_name": "오사카 플래너",
+  "name": "조씨네 오사카 여행",
+  "short_name": "오사카 여행",
+  "description": "조씨네 가족 오사카·교토 여행 플래너 2026",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#4A90E2",
+  "background_color": "#fdf6ec",
+  "theme_color": "#c4522d",
+  "orientation": "portrait",
+  "lang": "ko",
   "icons": [
     {
-      "src": "/icon-192x192.png",
+      "src": "/icon-192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
-      "src": "/icon-512x512.png",
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/icon-512.png",
       "sizes": "512x512",
       "type": "image/png"
     }
