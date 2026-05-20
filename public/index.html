@@ -1055,13 +1055,13 @@ const CLOUDINARY_PRESET = "osaka_planner";
 // ── DATA ─────────────────────────────────────────────────────────
 const DAYS = [
   { date:'5/24', weekday:'일', name:'출발&교토로 이동', emoji:'✈️' },
-  { date:'5/25', weekday:'월', name:'교토', emoji:'🏯' },
-  { date:'5/26', weekday:'화', name:'교토', emoji:'🦌' },
-  { date:'5/27', weekday:'수', name:'오사카로 이동', emoji:'🚃' },
-  { date:'5/28', weekday:'목', name:'오사카', emoji:'🎡' },
+  { date:'5/25', weekday:'월', name:'교토', emoji:'⛩️' },
+  { date:'5/26', weekday:'화', name:'교토', emoji:'👘' },
+  { date:'5/27', weekday:'수', name:'교토→오사카 이동', emoji:'🚃' },
+  { date:'5/28', weekday:'목', name:'오사카', emoji:'🏯' },
   { date:'5/29', weekday:'금', name:'유니버셜', emoji:'🎮' },
   { date:'5/30', weekday:'토', name:'오사카', emoji:'🍜' },
-  { date:'5/31', weekday:'일', name:'귀국', emoji:'🏠' },
+  { date:'5/31', weekday:'일', name:'귀국', emoji:'🛫' },
 ];
 const CAT = {
   move:  { label:'이동', emoji:'🚃', cls:'badge-move' },
@@ -1122,13 +1122,13 @@ DAYS.forEach((_, i) => {
 // ── 날씨 API (Open-Meteo, 무료·API키 불필요) ──────────────────
 // 여행 날짜: 2026.05.24~05.31, 오사카(0~4일): 34.69, 135.50 / 교토(5~7일): 35.01, 135.76
 const WEATHER_LOCATIONS = [
-  { lat: 34.6937, lon: 135.5023 }, // 5/24 오사카
-  { lat: 34.6937, lon: 135.5023 }, // 5/25 오사카
-  { lat: 34.6937, lon: 135.5023 }, // 5/26 오사카
-  { lat: 34.6937, lon: 135.5023 }, // 5/27 유니버셜(오사카)
-  { lat: 34.6937, lon: 135.5023 }, // 5/28 오사카→교토
-  { lat: 35.0116, lon: 135.7681 }, // 5/29 교토
-  { lat: 35.0116, lon: 135.7681 }, // 5/30 교토
+  { lat: 35.0116, lon: 135.7681 }, // 5/24 교토
+  { lat: 35.0116, lon: 135.7681 }, // 5/25 교토
+  { lat: 35.0116, lon: 135.7681 }, // 5/26 교토
+  { lat: 35.0116, lon: 135.7681 }, // 5/27 교토→오사카 이동(교토 출발)
+  { lat: 34.6937, lon: 135.5023 }, // 5/28 오사카
+  { lat: 34.6937, lon: 135.5023 }, // 5/29 유니버셜(오사카)
+  { lat: 34.6937, lon: 135.5023 }, // 5/30 오사카
   { lat: 34.6937, lon: 135.5023 }, // 5/31 귀국(오사카)
 ];
 
@@ -1182,7 +1182,7 @@ function updateWeatherCards() {
     '2026-05-28','2026-05-29','2026-05-30','2026-05-31'
   ];
   const locationKeys = [
-    'osaka','osaka','osaka','osaka','osaka','kyoto','kyoto','osaka'
+    'kyoto','kyoto','kyoto','kyoto','osaka','osaka','osaka','osaka'
   ];
   dateKeys.forEach((date, i) => {
     const el = document.getElementById('weather-' + i);
