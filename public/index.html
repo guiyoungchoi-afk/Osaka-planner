@@ -1901,4 +1901,73 @@ const DEFAULT_PHOTO = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAA
   try {
     const snap = await getDoc(doc(db, 'settings', 'familyPhoto'));
     if (snap.exists() && snap.data().url) {
-      p
+      photoImg.src = snap.data().url;
+      document.getElementById('photoZone').classList.add('has-photo');
+    } else {
+      photoImg.src = DEFAULT_PHOTO;
+      document.getElementById('photoZone').classList.add('has-photo');
+    }
+  } catch(e) {
+    photoImg.src = DEFAULT_PHOTO;
+    document.getElementById('photoZone').classList.add('has-photo');
+  }
+})();
+</script>
+
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/service-worker.js')
+        .then(reg => console.log('서비스 워커 등록 성공!', reg))
+        .catch(err => console.log('서비스 워커 등록 실패:', err));
+    });
+  }
+</script>
+<script>
+// ── Service Worker 등록 + PWA 설치 프롬프트 ──
+let deferredPrompt = null;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  // 설치 배너 표시
+  const banner = document.getElementById('pwa-install-banner');
+  if (banner) banner.style.display = 'flex';
+});
+
+window.addEventListener('appinstalled', () => {
+  const banner = document.getElementById('pwa-install-banner');
+  if (banner) banner.style.display = 'none';
+  deferredPrompt = null;
+});
+
+window.installPWA = async function() {
+  if (deferredPrompt) {
+    // 자동 설치 프롬프트 사용
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    deferredPrompt = null;
+    const banner = document.getElementById('pwa-install-banner');
+    if (banner) banner.style.display = 'none';
+  } else {
+    // 수동 안내 팝업
+    const guide = document.getElementById('pwa-manual-guide');
+    if (guide) guide.style.display = 'flex';
+  }
+};
+
+window.dismissBanner = function() {
+  const banner = document.getElementById('pwa-install-banner');
+  if (banner) banner.style.display = 'none';
+};
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .then(reg => console.log('SW 등록 완료:', reg.scope))
+      .catch(err => console.log('SW 등록 실패:', err));
+  });
+}
+</script>
+</body>
+</html>
