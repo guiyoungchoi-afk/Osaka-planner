@@ -809,7 +809,7 @@
 </head>
 <body>
 <!-- PWA 설치 배너 -->
-<div id="pwa-install-banner" style="display:none; position:fixed; bottom:0; left:0; right:0; z-index:9999; background:#2c1810; padding:14px 20px; align-items:center; justify-content:space-between; gap:12px; box-shadow:0 -4px 20px rgba(0,0,0,0.3);">
+<div id="pwa-install-banner" style="display:flex; position:fixed; bottom:0; left:0; right:0; z-index:9999; background:#2c1810; padding:14px 20px; align-items:center; justify-content:space-between; gap:12px; box-shadow:0 -4px 20px rgba(0,0,0,0.3);">
   <div style="display:flex; align-items:center; gap:12px;">
     <div style="font-size:28px;">🏯</div>
     <div>
@@ -819,13 +819,40 @@
   </div>
   <div style="display:flex; gap:8px; flex-shrink:0;">
     <button onclick="dismissBanner()" style="background:rgba(255,255,255,0.15); border:none; color:white; padding:8px 14px; border-radius:8px; font-size:12px; cursor:pointer; font-family:Noto Sans KR,sans-serif;">나중에</button>
-    <button onclick="installPWA()" style="background:#c4522d; border:none; color:white; padding:8px 16px; border-radius:8px; font-size:12px; font-weight:700; cursor:pointer; font-family:Noto Sans KR,sans-serif;">설치</button>
+    <button onclick="installPWA()" style="background:#c4522d; border:none; color:white; padding:8px 16px; border-radius:8px; font-size:12px; font-weight:700; cursor:pointer; font-family:Noto Sans KR,sans-serif;">📲 설치</button>
   </div>
 </div>
 
 <!-- HEADER -->
 <div class="header">
   <div class="header-dates">May 24 – 31, 2026 · 8 Days</div>
+
+<!-- PWA 수동 설치 안내 팝업 -->
+<div id="pwa-manual-guide" onclick="if(event.target===this)this.style.display='none'" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:10000; align-items:flex-end; justify-content:center;">
+  <div style="background:white; border-radius:20px 20px 0 0; padding:28px 24px 40px; width:100%; max-width:480px;">
+    <div style="text-align:center; margin-bottom:20px;">
+      <div style="font-size:36px; margin-bottom:8px;">📲</div>
+      <div style="font-size:16px; font-weight:700; color:#2c1810; font-family:Noto Sans KR,sans-serif;">홈화면에 앱 추가하기</div>
+    </div>
+    <div style="background:#f5ede0; border-radius:12px; padding:16px; margin-bottom:12px;">
+      <div style="font-size:12px; font-weight:700; color:#c4522d; margin-bottom:8px; font-family:Noto Sans KR,sans-serif;">🤖 Android (Chrome)</div>
+      <div style="font-size:12px; color:#555; line-height:1.8; font-family:Noto Sans KR,sans-serif;">
+        1. 오른쪽 상단 점 3개(⋮) 탭<br>
+        2. <b>"앱 설치"</b> 또는 <b>"홈 화면에 추가"</b> 탭<br>
+        3. <b>"설치"</b> 탭
+      </div>
+    </div>
+    <div style="background:#f5ede0; border-radius:12px; padding:16px; margin-bottom:20px;">
+      <div style="font-size:12px; font-weight:700; color:#c4522d; margin-bottom:8px; font-family:Noto Sans KR,sans-serif;">🍎 iPhone (Safari)</div>
+      <div style="font-size:12px; color:#555; line-height:1.8; font-family:Noto Sans KR,sans-serif;">
+        1. 하단 공유 버튼(□↑) 탭<br>
+        2. <b>"홈 화면에 추가"</b> 탭<br>
+        3. <b>"추가"</b> 탭
+      </div>
+    </div>
+    <button onclick="document.getElementById('pwa-manual-guide').style.display='none'" style="width:100%; background:#c4522d; border:none; color:white; padding:14px; border-radius:12px; font-size:14px; font-weight:700; cursor:pointer; font-family:Noto Sans KR,sans-serif;">확인</button>
+  </div>
+</div>
   <div class="header-title">조씨네<br><em>Osaka Planner</em></div>
 </div>
 
@@ -1874,67 +1901,4 @@ const DEFAULT_PHOTO = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAA
   try {
     const snap = await getDoc(doc(db, 'settings', 'familyPhoto'));
     if (snap.exists() && snap.data().url) {
-      photoImg.src = snap.data().url;
-      document.getElementById('photoZone').classList.add('has-photo');
-    } else {
-      photoImg.src = DEFAULT_PHOTO;
-      document.getElementById('photoZone').classList.add('has-photo');
-    }
-  } catch(e) {
-    photoImg.src = DEFAULT_PHOTO;
-    document.getElementById('photoZone').classList.add('has-photo');
-  }
-})();
-</script>
-
-<script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/service-worker.js')
-        .then(reg => console.log('서비스 워커 등록 성공!', reg))
-        .catch(err => console.log('서비스 워커 등록 실패:', err));
-    });
-  }
-</script>
-<script>
-// ── Service Worker 등록 + PWA 설치 프롬프트 ──
-let deferredPrompt = null;
-
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-  // 설치 배너 표시
-  const banner = document.getElementById('pwa-install-banner');
-  if (banner) banner.style.display = 'flex';
-});
-
-window.addEventListener('appinstalled', () => {
-  const banner = document.getElementById('pwa-install-banner');
-  if (banner) banner.style.display = 'none';
-  deferredPrompt = null;
-});
-
-window.installPWA = async function() {
-  if (!deferredPrompt) return;
-  deferredPrompt.prompt();
-  const { outcome } = await deferredPrompt.userChoice;
-  deferredPrompt = null;
-  const banner = document.getElementById('pwa-install-banner');
-  if (banner) banner.style.display = 'none';
-};
-
-window.dismissBanner = function() {
-  const banner = document.getElementById('pwa-install-banner');
-  if (banner) banner.style.display = 'none';
-};
-
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js')
-      .then(reg => console.log('SW 등록 완료:', reg.scope))
-      .catch(err => console.log('SW 등록 실패:', err));
-  });
-}
-</script>
-</body>
-</html>
+      p
