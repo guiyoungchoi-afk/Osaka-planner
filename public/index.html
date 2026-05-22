@@ -1,361 +1,166 @@
 
-
-
 <!DOCTYPE html>
 <html lang="ko">
-<!-- 이 파일을 GitHub의 index.html로 교체하세요 -->
 <head>
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#c4522d">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>조씨네 Osaka Planner</title>
-<!-- PWA iOS 지원 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="오사카 여행">
 <link rel="apple-touch-icon" href="/icon-192.png">
-<!-- PWA 설명 -->
 <meta name="description" content="조씨네 오사카 여행 플래너 2026">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
 <style>
   :root {
-    --red: #c0392b;
-    --red2: #e74c3c;
-    --orange: #e67e22;
-    --cream: #fffbf5;
-    --ink: #1a1410;
-    --muted: #8a7a6a;
-    --border: #e8ddd0;
-    --surface: #fff;
-    --bg: #f7f2eb;
+    --red: #c0392b; --red2: #e74c3c; --orange: #e67e22;
+    --cream: #fffbf5; --ink: #1a1410; --muted: #8a7a6a;
+    --border: #e8ddd0; --surface: #fff; --bg: #f7f2eb;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   html, body { height: 100%; }
-  body {
-    font-family: 'Noto Sans KR', sans-serif;
-    background: var(--bg);
-    color: var(--ink);
-    min-height: 100vh;
-  }
+  body { font-family: 'Noto Sans KR', sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; }
 
-  /* ── SPLASH SCREEN ─────────────────────────────────────── */
+  /* ── SPLASH ── */
   #splashScreen {
-    position: fixed;
-    inset: 0;
+    position: fixed; inset: 0;
     background: linear-gradient(160deg, #fce4ec 0%, #f8bbd0 40%, #ffd6e7 70%, #fff0f5 100%);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    z-index: 99999;
-    cursor: pointer;
-    overflow: hidden;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    z-index: 99999; cursor: pointer; overflow: hidden;
     transition: opacity 0.7s ease, transform 0.7s ease;
   }
-  .sakura-petal {
-    position: absolute;
-    opacity: 0;
-    animation: petalFall linear infinite;
-    pointer-events: none;
-    user-select: none;
-  }
+  .sakura-petal { position: absolute; opacity: 0; animation: petalFall linear infinite; pointer-events: none; user-select: none; }
   @keyframes petalFall {
-    0%   { transform: translateY(-80px) rotate(0deg);   opacity: 0; }
+    0%   { transform: translateY(-80px) rotate(0deg); opacity: 0; }
     10%  { opacity: 0.9; }
     50%  { transform: translateY(50vh) rotate(180deg) translateX(30px); }
     90%  { opacity: 0.7; }
     100% { transform: translateY(110vh) rotate(360deg) translateX(-20px); opacity: 0; }
   }
   .splash-icon-wrap {
-    position: relative;
-    z-index: 1;
-    margin-bottom: 28px;
+    position: relative; z-index: 1; margin-bottom: 28px;
     animation: iconFloat 3s ease-in-out infinite;
     filter: drop-shadow(0 12px 32px rgba(196,82,125,0.35));
   }
-  .splash-icon-wrap img {
-    width: clamp(160px, 42vw, 240px);
-    height: clamp(160px, 42vw, 240px);
-    border-radius: 36px;
-    display: block;
-  }
-  @keyframes iconFloat {
-    0%, 100% { transform: translateY(0px) scale(1); }
-    50%       { transform: translateY(-12px) scale(1.03); }
-  }
-  .splash-title {
-    font-size: clamp(1.7rem, 5.5vw, 2.5rem);
-    font-weight: 900;
-    color: #2c1810;
-    text-align: center;
-    position: relative;
-    z-index: 1;
-    margin-bottom: 6px;
-    letter-spacing: 0.04em;
-    text-shadow: 0 2px 8px rgba(196,82,125,0.2);
-    font-family: 'Noto Sans KR', sans-serif;
-  }
+  .splash-icon-wrap img { width: clamp(160px,42vw,240px); height: clamp(160px,42vw,240px); border-radius: 36px; display: block; }
+  @keyframes iconFloat { 0%,100% { transform: translateY(0px) scale(1); } 50% { transform: translateY(-12px) scale(1.03); } }
+  .splash-title { font-size: clamp(1.7rem,5.5vw,2.5rem); font-weight: 900; color: #2c1810; text-align: center; position: relative; z-index: 1; margin-bottom: 6px; letter-spacing: 0.04em; text-shadow: 0 2px 8px rgba(196,82,125,0.2); }
   .splash-title em { font-style: normal; color: #c4522d; }
-  .splash-sub {
-    font-size: clamp(0.85rem, 2.8vw, 1rem);
-    color: #8b5e52;
-    text-align: center;
-    position: relative;
-    z-index: 1;
-    margin-bottom: 44px;
-    letter-spacing: 0.05em;
-    font-family: 'Noto Sans KR', sans-serif;
-  }
+  .splash-sub { font-size: clamp(0.85rem,2.8vw,1rem); color: #8b5e52; text-align: center; position: relative; z-index: 1; margin-bottom: 44px; letter-spacing: 0.05em; }
   .splash-enter-btn {
-    position: relative;
-    z-index: 1;
-    background: linear-gradient(135deg, #c4522d, #e07b5a);
-    color: #fff;
-    border: none;
-    border-radius: 50px;
-    padding: 16px 52px;
-    font-size: 1.05rem;
-    font-weight: 700;
-    cursor: pointer;
-    letter-spacing: 0.08em;
-    box-shadow: 0 8px 28px rgba(196,82,45,0.4);
-    transition: transform 0.18s, box-shadow 0.18s;
-    animation: btnPulse 2.2s ease-in-out infinite;
+    position: relative; z-index: 1;
+    background: linear-gradient(135deg, #c4522d, #e07b5a); color: #fff; border: none;
+    border-radius: 50px; padding: 16px 52px; font-size: 1.05rem; font-weight: 700;
+    cursor: pointer; letter-spacing: 0.08em; box-shadow: 0 8px 28px rgba(196,82,45,0.4);
+    transition: transform 0.18s, box-shadow 0.18s; animation: btnPulse 2.2s ease-in-out infinite;
     font-family: 'Noto Sans KR', sans-serif;
   }
-  @keyframes btnPulse {
-    0%, 100% { box-shadow: 0 8px 28px rgba(196,82,45,0.4); }
-    50%       { box-shadow: 0 10px 40px rgba(196,82,45,0.65); }
-  }
-  .splash-enter-btn:hover  { transform: scale(1.06); }
+  @keyframes btnPulse { 0%,100% { box-shadow: 0 8px 28px rgba(196,82,45,0.4); } 50% { box-shadow: 0 10px 40px rgba(196,82,45,0.65); } }
+  .splash-enter-btn:hover { transform: scale(1.06); }
   .splash-enter-btn:active { transform: scale(0.96); }
-  .splash-hint {
-    position: absolute;
-    bottom: 28px;
-    font-size: 0.75rem;
-    color: rgba(44,24,16,0.4);
-    z-index: 1;
-    letter-spacing: 0.04em;
-    animation: hintBlink 2.5s ease-in-out infinite;
-    font-family: 'Noto Sans KR', sans-serif;
-  }
-  @keyframes hintBlink {
-    0%, 100% { opacity: 0.4; }
-    50%       { opacity: 0.9; }
-  }
-  #splashScreen.splash-exit {
-    opacity: 0;
-    transform: scale(1.05);
-    pointer-events: none;
-  }
+  .splash-hint { position: absolute; bottom: 28px; font-size: 0.75rem; color: rgba(44,24,16,0.4); z-index: 1; letter-spacing: 0.04em; animation: hintBlink 2.5s ease-in-out infinite; }
+  @keyframes hintBlink { 0%,100% { opacity: 0.4; } 50% { opacity: 0.9; } }
+  #splashScreen.splash-exit { opacity: 0; transform: scale(1.05); pointer-events: none; }
+
   /* ── HEADER ── */
   .header {
     background: var(--red);
     background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-    padding: 2rem 1.25rem 1.5rem;
-    position: relative;
-    overflow: hidden;
+    padding: 2rem 1.25rem 1.5rem; position: relative; overflow: hidden;
   }
-  .header::after {
-    content: '🇯🇵';
-    position: absolute;
-    right: -10px;
-    top: -10px;
-    font-size: 80px;
-    opacity: 0.08;
-  }
-  .header-dates {
-    font-size: 11px;
-    font-weight: 500;
-    letter-spacing: 2px;
-    color: rgba(255,255,255,0.7);
-    text-transform: uppercase;
-    margin-bottom: 6px;
-  }
-  .header-title {
-    font-family: 'Playfair Display', serif;
-    font-size: clamp(1.8rem, 6vw, 2.4rem);
-    color: white;
-    line-height: 1.15;
-    font-weight: 700;
-  }
-  .header-title em {
-    font-style: italic;
-    font-weight: 400;
-    font-size: 0.85em;
-    opacity: 0.9;
-  }
+  .header::after { content: '🇯🇵'; position: absolute; right: -10px; top: -10px; font-size: 80px; opacity: 0.08; }
+  .header-dates { font-size: 11px; font-weight: 500; letter-spacing: 2px; color: rgba(255,255,255,0.7); text-transform: uppercase; margin-bottom: 6px; }
+  .header-title { font-family: 'Playfair Display', serif; font-size: clamp(1.8rem,6vw,2.4rem); color: white; line-height: 1.15; font-weight: 700; }
+  .header-title em { font-style: italic; font-weight: 400; font-size: 0.85em; opacity: 0.9; }
+
   /* ── PHOTO ZONE ── */
   .photo-zone {
-    margin: 1.25rem 1.25rem 0;
-    border-radius: 16px;
-    overflow: hidden;
-    position: relative;
-    height: 160px;
-    background: #e8ddd0;
-    cursor: pointer;
+    margin: 1.25rem 1.25rem 0; border-radius: 16px; overflow: hidden;
+    position: relative; height: 180px; background: #e8ddd0; cursor: pointer;
   }
-  .photo-zone.has-photo #photoPreview { opacity: 1; }
-  #photoPreview {
-    width: 100%; height: 100%;
-    object-fit: cover;
-    display: block;
-    opacity: 0.3;
-    transition: opacity 0.3s;
+  .photo-placeholder {
+    position: absolute; inset: 0; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 6px;
   }
-  .photo-overlay {
-    position: absolute; inset: 0;
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    gap: 6px;
-    background: rgba(0,0,0,0.18);
+  .photo-icon { font-size: 32px; }
+  .photo-placeholder p { font-size: 14px; font-weight: 600; color: var(--muted); }
+  .photo-placeholder span { font-size: 11px; color: #bbb; }
+  #photoPreview { width: 100%; height: 100%; object-fit: cover; display: none; }
+  .photo-zone.has-photo #photoPreview { display: block; }
+  .photo-zone.has-photo .photo-placeholder { display: none; }
+  .photo-change-btn {
+    position: absolute; bottom: 10px; right: 10px;
+    background: rgba(0,0,0,0.45); color: white; border: none;
+    border-radius: 8px; padding: 6px 12px; font-size: 12px; font-weight: 600;
+    cursor: pointer; font-family: inherit; display: none;
   }
-  .photo-zone.has-photo .photo-overlay { opacity: 0; transition: opacity 0.2s; }
-  .photo-zone.has-photo:hover .photo-overlay { opacity: 1; }
-  .photo-overlay-icon { font-size: 28px; }
-  .photo-overlay-text { font-size: 12px; color: white; font-weight: 600; letter-spacing: 0.5px; }
-  /* ── WEATHER STRIP ── */
-  .weather-strip {
-    display: flex;
-    gap: 8px;
-    padding: 0.75rem 1.25rem;
-    overflow-x: auto;
-    scrollbar-width: none;
-  }
-  .weather-strip::-webkit-scrollbar { display: none; }
-  .weather-card {
-    flex-shrink: 0;
-    background: white;
-    border-radius: 12px;
-    padding: 8px 12px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2px;
-    min-width: 64px;
-    border: 1px solid var(--border);
-  }
-  .weather-date { font-size: 10px; color: var(--muted); font-weight: 600; }
-  .weather-icon { font-size: 20px; line-height: 1.2; }
-  .weather-temp { font-size: 11px; font-weight: 700; color: var(--ink); }
-  .weather-temp span { color: var(--muted); font-weight: 400; }
+  .photo-zone.has-photo .photo-change-btn { display: block; }
+  #photoInput { display: none; }
+
   /* ── SECTION LABEL ── */
-  .section-label {
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: var(--muted);
-    padding: 0 1.25rem;
-    margin-bottom: 10px;
-  }
-  /* ── DAYS SCROLL ── */
-  .days-scroll {
-    display: flex;
-    gap: 10px;
-    padding: 0 1.25rem 0.5rem;
-    overflow-x: auto;
-    scrollbar-width: none;
-  }
-  .days-scroll::-webkit-scrollbar { display: none; }
-  .day-card {
-    flex-shrink: 0;
-    width: 72px;
-    background: white;
-    border-radius: 16px;
-    padding: 12px 8px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    cursor: pointer;
-    border: 2px solid transparent;
-    transition: all 0.2s;
-    position: relative;
-  }
+  .section-label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); padding: 0 1.25rem; margin-bottom: 10px; }
+
+  /* ── CHECKLIST ── */
+  .checklist-section { background: white; border-radius: 16px; border: 1.5px solid var(--border); overflow: hidden; margin: 0 1.25rem; }
+  .checklist-head { padding: 1rem 1.25rem; border-bottom: 0.5px solid var(--border); }
+  .checklist-head-title { font-size: 15px; font-weight: 700; }
+  .checklist-head-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .progress-bar-wrap { height: 4px; background: #f0ebe4; margin-top: 10px; border-radius: 2px; }
+  .progress-bar-fill { height: 100%; background: var(--red); border-radius: 2px; transition: width 0.4s ease; }
+  .checklist-body { padding: 0.5rem 0; }
+  .checklist-empty { text-align: center; padding: 2rem 1rem; color: #ccc; font-size: 13px; line-height: 1.8; }
+  .checklist-day-group-label { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; color: var(--muted); padding: 10px 1.25rem 5px; display: flex; align-items: center; gap: 6px; border-bottom: 0.5px solid var(--border); }
+  .checklist-item { display: flex; align-items: center; gap: 10px; padding: 10px 1.25rem; border-bottom: 0.5px solid var(--border); }
+  .checklist-item:last-child { border-bottom: none; }
+  .checklist-item-done { opacity: 0.5; }
+  .checklist-checkbox { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; font-size: 11px; color: transparent; transition: all 0.2s; }
+  .checklist-checkbox.checked { background: var(--red); border-color: var(--red); color: white; }
+  .checklist-item-main { flex: 1; min-width: 0; }
+  .checklist-item-text { font-size: 14px; font-weight: 500; }
+  .checklist-item-text.done { text-decoration: line-through; color: var(--muted); }
+  .cl-detail-btn { background: none; border: none; font-size: 16px; cursor: pointer; padding: 0 2px; flex-shrink: 0; line-height: 1; opacity: 0.6; transition: opacity 0.15s; }
+  .cl-detail-btn:hover { opacity: 1; }
+  .cl-detail-box { margin: 0 1.25rem 6px calc(20px + 10px + 1.25rem); background: #f7f2eb; border-radius: 8px; padding: 7px 10px; }
+  .cl-detail-row { font-size: 12px; color: var(--muted); line-height: 1.6; }
+
+  /* ── DAY CARDS ── */
+  .days-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; padding: 0 1.25rem; }
+  .day-card { background: white; border-radius: 16px; padding: 12px 8px; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; border: 2px solid transparent; transition: all 0.2s; position: relative; }
   .day-card:hover { border-color: var(--border); }
-  .day-card.active {
-    background: var(--red);
-    border-color: var(--red);
-    color: white;
-    box-shadow: 0 4px 16px rgba(192,57,43,0.3);
-  }
-  .day-emoji { font-size: 20px; line-height: 1; }
-  .day-date { font-size: 13px; font-weight: 700; }
-  .day-weekday { font-size: 10px; color: var(--muted); }
-  .day-card.active .day-weekday { color: rgba(255,255,255,0.7); }
-  .day-name { font-size: 9px; color: var(--muted); text-align: center; line-height: 1.3; margin-top: 2px; }
-  .day-card.active .day-name { color: rgba(255,255,255,0.8); }
-  .day-badge {
-    position: absolute;
-    top: 6px; right: 6px;
-    background: var(--orange);
-    color: white;
-    font-size: 9px;
-    font-weight: 700;
-    border-radius: 8px;
-    padding: 1px 5px;
-    min-width: 16px;
-    text-align: center;
-  }
-  .day-card.active .day-badge { background: rgba(255,255,255,0.3); }
+  .day-card.active { background: var(--red); border-color: var(--red); color: white; box-shadow: 0 4px 16px rgba(192,57,43,0.3); }
+  .dc-emoji { font-size: 20px; line-height: 1; }
+  .dc-date { font-size: 13px; font-weight: 700; }
+  .dc-weekday { font-size: 10px; color: var(--muted); }
+  .day-card.active .dc-weekday { color: rgba(255,255,255,0.7); }
+  .dc-name { font-size: 9px; color: var(--muted); text-align: center; line-height: 1.3; margin-top: 2px; }
+  .day-card.active .dc-name { color: rgba(255,255,255,0.8); }
+  .dc-weather { font-size: 10px; color: var(--muted); margin-top: 3px; text-align: center; }
+  .day-card.active .dc-weather { color: rgba(255,255,255,0.8); }
+  .dc-weather-loading { font-size: 9px; color: #ccc; }
+  .dot-badge { width: 6px; height: 6px; background: var(--orange); border-radius: 50%; position: absolute; top: 8px; right: 8px; }
+  .day-card.active .dot-badge { background: rgba(255,255,255,0.7); }
+
   /* ── SCHEDULE PANEL ── */
-  .schedule-panel {
-    margin: 1rem 1.25rem 0;
-    background: white;
-    border-radius: 20px;
-    border: 1.5px solid var(--border);
-    overflow: hidden;
-  }
-  .panel-head {
-    padding: 1rem 1.25rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    border-bottom: 0.5px solid var(--border);
-  }
+  .schedule-panel { margin: 1rem 1.25rem 0; background: white; border-radius: 20px; border: 1.5px solid var(--border); overflow: hidden; }
+  .panel-head { padding: 1rem 1.25rem; display: flex; align-items: center; justify-content: space-between; border-bottom: 0.5px solid var(--border); }
   .panel-day-title { font-size: 16px; font-weight: 700; }
   .panel-day-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
-  .add-item-btn {
-    width: 36px; height: 36px;
-    background: var(--red);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    font-size: 22px;
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    box-shadow: 0 2px 8px rgba(192,57,43,0.3);
-    transition: transform 0.15s;
-    flex-shrink: 0;
-  }
+  .add-item-btn { width: 36px; height: 36px; background: var(--red); color: white; border: none; border-radius: 50%; font-size: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(192,57,43,0.3); transition: transform 0.15s; flex-shrink: 0; }
   .add-item-btn:active { transform: scale(0.9); }
   .items-container { padding: 0.5rem 0; min-height: 60px; }
+  .empty-state { text-align: center; padding: 2rem 1rem; color: #ccc; font-size: 13px; line-height: 1.8; }
+  .empty-icon { font-size: 2rem; display: block; margin-bottom: 8px; }
+
   /* ── ITEM ── */
-  .item {
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    padding: 10px 1.25rem;
-    border-bottom: 0.5px solid var(--border);
-    transition: background 0.15s;
-  }
+  .item { display: flex; align-items: flex-start; gap: 10px; padding: 10px 1.25rem; border-bottom: 0.5px solid var(--border); transition: background 0.15s; }
   .item:last-child { border-bottom: none; }
   .item:active { background: #faf7f4; }
   .item-cat-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
   .item-time { font-size: 11px; color: var(--muted); min-width: 36px; flex-shrink: 0; padding-top: 3px; }
   .item-main { flex: 1; min-width: 0; }
-  .item-badge {
-    display: inline-block;
-    font-size: 9px;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-    padding: 2px 7px;
-    border-radius: 6px;
-    margin-bottom: 3px;
-    text-transform: uppercase;
-  }
+  .item-badge { display: inline-block; font-size: 9px; font-weight: 700; letter-spacing: 0.5px; padding: 2px 7px; border-radius: 6px; margin-bottom: 3px; text-transform: uppercase; }
   .badge-move  { background: #e8f4fd; color: #2980b9; }
   .badge-tour  { background: #fef9e7; color: #d4ac0d; }
   .badge-food  { background: #fdf2f8; color: #8e44ad; }
@@ -365,431 +170,101 @@
   .item-text { font-size: 14px; font-weight: 500; line-height: 1.4; }
   .item-place { font-size: 11px; color: var(--muted); margin-top: 3px; }
   .item-memo-wrap { margin-top: 4px; }
-  .item-memo {
-    font-size: 12px;
-    color: var(--muted);
-    line-height: 1.5;
-    white-space: pre-wrap;
-  }
-  .item-memo-collapsed {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
+  .item-memo { font-size: 12px; color: var(--muted); line-height: 1.5; white-space: pre-wrap; }
+  .item-memo-collapsed { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
   .item-memo-expanded { display: block; }
-  .memo-toggle-btn {
-    background: none; border: none;
-    font-size: 11px; color: var(--red2);
-    cursor: pointer; padding: 2px 0;
-    font-family: inherit;
-  }
-  .place-input-wrap { display: flex; gap: 8px; }
-  .place-search-btn {
-    background: var(--red); color: white; border: none;
-    border-radius: 10px; padding: 10px 14px;
-    font-size: 13px; font-weight: 600;
-    font-family: inherit;
-    cursor: pointer;
-    white-space: nowrap;
-    flex-shrink: 0;
-    transition: background 0.15s;
-  }
-  .place-search-btn:hover { background: #a93226; }
-  /* 사진 업로드 */
-  .photo-upload-area {
-    border: 2px dashed var(--border);
-    border-radius: 12px;
-    min-height: 70px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: border-color 0.2s;
-  }
-  .photo-upload-area:hover { border-color: var(--red); }
-  .photo-upload-placeholder { display: flex; flex-direction: column; align-items: center; padding: 14px; }
-  /* 썸네일 그리드 (모달 내) */
-  .photo-preview-grid {
-    display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px;
-  }
-  .photo-thumb-wrap {
-    position: relative; width: 80px; height: 80px; border-radius: 10px; overflow: hidden;
-  }
-  .photo-thumb {
-    width: 100%; height: 100%; object-fit: cover; display: block;
-  }
-  .photo-thumb-del {
-    position: absolute; top: 3px; right: 3px;
-    background: rgba(0,0,0,0.55); color: white; border: none;
-    border-radius: 50%; width: 20px; height: 20px; font-size: 11px;
-    cursor: pointer; display: flex; align-items: center; justify-content: center;
-    padding: 0;
-  }
-  /* 일정 카드 내 사진 그리드 */
-  .item-photos-grid {
-    display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px;
-  }
-  .item-photo {
-    width: 80px; height: 80px;
-    object-fit: cover;
-    border-radius: 8px;
-    cursor: pointer;
-    display: block;
-    transition: opacity 0.2s;
-  }
+  .memo-toggle-btn { background: none; border: none; font-size: 11px; color: var(--red2); cursor: pointer; padding: 2px 0; font-family: inherit; }
+  .item-photos-grid { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .item-photo { width: 80px; height: 80px; object-fit: cover; border-radius: 8px; cursor: pointer; display: block; transition: opacity 0.2s; }
   .item-photo:hover { opacity: 0.85; }
-  /* 사진 전체보기 뷰어 */
-  .photo-viewer {
-    position: fixed; inset: 0; background: rgba(0,0,0,0.93);
-    z-index: 9999; display: flex; align-items: center; justify-content: center;
-    animation: fadeIn 0.2s ease;
-  }
-  .photo-viewer img { max-width: 88vw; max-height: 85vh; border-radius: 8px; object-fit: contain; }
-  .photo-viewer-close {
-    position: absolute; top: 16px; right: 16px;
-    background: rgba(255,255,255,0.15); border: none; color: white;
-    font-size: 22px; width: 40px; height: 40px; border-radius: 50%;
-    cursor: pointer; display: flex; align-items: center; justify-content: center;
-  }
-  .photo-viewer-prev, .photo-viewer-next {
-    position: absolute; top: 50%; transform: translateY(-50%);
-    background: rgba(255,255,255,0.15); border: none; color: white;
-    font-size: 32px; width: 44px; height: 44px; border-radius: 50%;
-    cursor: pointer; display: flex; align-items: center; justify-content: center;
-  }
-  .photo-viewer-prev { left: 16px; }
-  .photo-viewer-next { right: 16px; }
-  .photo-viewer-counter {
-    position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
-    color: rgba(255,255,255,0.8); font-size: 13px; background: rgba(0,0,0,0.4);
-    padding: 4px 12px; border-radius: 20px;
-  }
-  .day-select-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 6px;
-  }
-  .day-select-btn {
-    background: #f5f0ea;
-    border: 1.5px solid var(--border);
-    border-radius: 10px;
-    padding: 7px 4px;
-    cursor: pointer;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2px;
-    transition: all 0.15s;
-    font-family: inherit;
-  }
-  .day-select-btn.selected {
-    background: var(--red);
-    border-color: var(--red);
-    color: white;
-  }
-  .day-select-btn.selected .day-select-weekday { color: rgba(255,255,255,0.75); }
-  .day-select-emoji { font-size: 14px; line-height: 1; }
-  .day-select-date { font-size: 12px; font-weight: 700; }
-  .day-select-weekday { font-size: 10px; color: var(--muted); }
   .item-actions { display: flex; gap: 2px; }
-  .item-action-btn {
-    background: none; border: none;
-    width: 28px; height: 28px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 14px;
-    display: flex; align-items: center; justify-content: center;
-    color: #ccc;
-    transition: all 0.15s;
-  }
+  .item-action-btn { background: none; border: none; width: 28px; height: 28px; border-radius: 8px; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; color: #ccc; transition: all 0.15s; }
   .item-action-btn:hover { background: #f5f0ea; color: var(--muted); }
   .item-action-btn.del:hover { background: #fdf2f2; color: var(--red2); }
+
+  /* ── MEMO SECTION ── */
+  .memo-section { margin: 0 1.25rem 1.5rem; background: white; border-radius: 16px; border: 1.5px solid var(--border); overflow: hidden; }
+  .memo-head { padding: 0.8rem 1.25rem; font-size: 13px; font-weight: 700; color: var(--ink); border-bottom: 0.5px solid var(--border); display: flex; align-items: center; gap: 6px; }
+  .memo-body textarea { border: none; border-radius: 0; background: white; padding: 0.75rem 1.25rem; font-size: 13px; color: var(--ink); min-height: 80px; width: 100%; font-family: inherit; outline: none; resize: vertical; line-height: 1.5; }
+
+  /* ── PHOTO VIEWER ── */
+  .photo-viewer { position: fixed; inset: 0; background: rgba(0,0,0,0.93); z-index: 9999; display: flex; align-items: center; justify-content: center; animation: fadeIn 0.2s ease; }
+  .photo-viewer img { max-width: 88vw; max-height: 85vh; border-radius: 8px; object-fit: contain; }
+  .photo-viewer-close { position: absolute; top: 16px; right: 16px; background: rgba(255,255,255,0.15); border: none; color: white; font-size: 22px; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .photo-viewer-prev, .photo-viewer-next { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.15); border: none; color: white; font-size: 32px; width: 44px; height: 44px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .photo-viewer-prev { left: 16px; }
+  .photo-viewer-next { right: 16px; }
+  .photo-viewer-counter { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); color: rgba(255,255,255,0.8); font-size: 13px; background: rgba(0,0,0,0.4); padding: 4px 12px; border-radius: 20px; }
+
   /* ── MODAL ── */
-  .overlay {
-    display: none;
-    position: fixed; inset: 0;
-    background: rgba(26,20,16,0.5);
-    z-index: 200;
-    align-items: flex-end;
-    justify-content: center;
-    backdrop-filter: blur(2px);
-  }
+  .overlay { display: none; position: fixed; inset: 0; background: rgba(26,20,16,0.5); z-index: 200; align-items: flex-end; justify-content: center; backdrop-filter: blur(2px); }
   .overlay.open { display: flex; }
-  .modal {
-    background: white;
-    width: 100%;
-    max-width: 520px;
-    border-radius: 24px 24px 0 0;
-    padding: 0;
-    max-height: 90vh;
-    overflow-y: auto;
-    animation: sheetUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-  }
-  @keyframes sheetUp {
-    from { transform: translateY(100%); }
-    to { transform: translateY(0); }
-  }
-  .modal-handle {
-    width: 36px; height: 4px;
-    background: #e0d8d0;
-    border-radius: 2px;
-    margin: 12px auto 0;
-  }
-  .modal-header {
-    padding: 1rem 1.5rem 0.75rem;
-    border-bottom: 0.5px solid var(--border);
-    display: flex; align-items: center; justify-content: space-between;
-  }
+  .edit-overlay { display: none; position: fixed; inset: 0; background: rgba(26,20,16,0.5); z-index: 300; align-items: flex-end; justify-content: center; backdrop-filter: blur(2px); }
+  .edit-overlay.open { display: flex; }
+  .modal { background: white; width: 100%; max-width: 520px; border-radius: 24px 24px 0 0; padding: 0; max-height: 90vh; overflow-y: auto; animation: sheetUp 0.3s cubic-bezier(0.34,1.56,0.64,1); }
+  @keyframes sheetUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  .modal-handle { width: 36px; height: 4px; background: #e0d8d0; border-radius: 2px; margin: 12px auto 0; }
+  .modal-header { padding: 1rem 1.5rem 0.75rem; border-bottom: 0.5px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
   .modal-title { font-size: 16px; font-weight: 700; }
-  .modal-close {
-    background: #f5f0ea; border: none;
-    width: 30px; height: 30px;
-    border-radius: 50%;
-    cursor: pointer;
-    font-size: 16px;
-    display: flex; align-items: center; justify-content: center;
-    color: var(--muted);
-  }
+  .modal-close { background: #f5f0ea; border: none; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; color: var(--muted); }
   .modal-body { padding: 1.25rem 1.5rem 1rem; }
   .form-group { margin-bottom: 1rem; }
-  .form-group label {
-    display: block;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 6px;
-  }
-  .cat-grid {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    gap: 6px;
-  }
-  .cat-btn {
-    background: #f7f2eb;
-    border: 1.5px solid transparent;
-    border-radius: 10px;
-    padding: 8px 4px;
-    cursor: pointer;
-    text-align: center;
-    transition: all 0.15s;
-    font-family: inherit;
-  }
+  .form-group label { display: block; font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  .cat-grid { display: grid; grid-template-columns: repeat(6,1fr); gap: 6px; }
+  .cat-btn { background: #f7f2eb; border: 1.5px solid transparent; border-radius: 10px; padding: 8px 4px; cursor: pointer; text-align: center; transition: all 0.15s; font-family: inherit; }
   .cat-btn:hover { border-color: var(--border); background: #f0ebe4; }
   .cat-btn.selected { border-color: var(--red2); background: #fdf2f2; }
   .cat-btn-icon { font-size: 18px; display: block; }
   .cat-btn-label { font-size: 10px; color: var(--muted); margin-top: 2px; display: block; font-weight: 500; }
   .cat-btn.selected .cat-btn-label { color: var(--red2); font-weight: 700; }
-  input[type="time"],
-  input[type="text"],
-  textarea {
-    width: 100%;
-    border: 1.5px solid var(--border);
-    border-radius: 10px;
-    padding: 10px 12px;
-    font-size: 14px;
-    font-family: inherit;
-    color: var(--ink);
-    background: #fffbf8;
-    outline: none;
-    transition: border-color 0.15s;
-    -webkit-appearance: none;
-  }
-  input[type="time"]:focus,
-  input[type="text"]:focus,
-  textarea:focus { border-color: var(--red2); background: white; }
+  input[type="time"], input[type="text"], textarea { width: 100%; border: 1.5px solid var(--border); border-radius: 10px; padding: 10px 12px; font-size: 14px; font-family: inherit; color: var(--ink); background: #fffbf8; outline: none; transition: border-color 0.15s; -webkit-appearance: none; }
+  input[type="time"]:focus, input[type="text"]:focus, textarea:focus { border-color: var(--red2); background: white; }
   textarea { resize: vertical; min-height: 72px; line-height: 1.5; }
-  .modal-footer {
-    padding: 0.75rem 1.5rem 1.5rem;
-    display: flex;
-    gap: 8px;
-  }
-  .btn-cancel {
-    flex: 1;
-    background: #f5f0ea;
-    border: none;
-    border-radius: 12px;
-    padding: 13px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    color: var(--muted);
-    font-family: inherit;
-    transition: background 0.15s;
-  }
+  .modal-footer { padding: 0.75rem 1.5rem 1.5rem; display: flex; gap: 8px; }
+  .btn-cancel { flex: 1; background: #f5f0ea; border: none; border-radius: 12px; padding: 13px; font-size: 14px; font-weight: 600; cursor: pointer; color: var(--muted); font-family: inherit; transition: background 0.15s; }
   .btn-cancel:hover { background: #ece7e0; }
-  .btn-save {
-    flex: 2;
-    background: var(--red);
-    border: none;
-    border-radius: 12px;
-    padding: 13px;
-    font-size: 14px;
-    font-weight: 700;
-    cursor: pointer;
-    color: white;
-    font-family: inherit;
-    transition: background 0.15s;
-  }
+  .btn-save { flex: 2; background: var(--red); border: none; border-radius: 12px; padding: 13px; font-size: 14px; font-weight: 700; cursor: pointer; color: white; font-family: inherit; transition: background 0.15s; }
   .btn-save:hover { background: #a93226; }
-  /* ── EDIT MODAL ── */
-  .edit-overlay {
-    display: none;
-    position: fixed; inset: 0;
-    background: rgba(26,20,16,0.5);
-    z-index: 300;
-    align-items: flex-end;
-    justify-content: center;
-    backdrop-filter: blur(2px);
-  }
-  .edit-overlay.open { display: flex; }
-  /* ── MEMO SECTION ── */
-  .memo-section {
-    margin: 0 1.25rem 1.5rem;
-    background: white;
-    border-radius: 16px;
-    border: 1.5px solid var(--border);
-    overflow: hidden;
-  }
-  .memo-head {
-    padding: 0.8rem 1.25rem;
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--ink);
-    border-bottom: 0.5px solid var(--border);
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .memo-body textarea {
-    border: none;
-    border-radius: 0;
-    background: white;
-    padding: 0.75rem 1.25rem;
-    font-size: 13px;
-    color: var(--ink);
-    min-height: 80px;
-  }
-  .memo-body textarea:focus { border: none; background: white; }
-  /* 삭제 확인 다이얼로그 */
-  .confirm-dialog {
-    background: white; border-radius: 20px; padding: 28px 24px 20px;
-    width: 300px; text-align: center; box-shadow: 0 8px 32px rgba(0,0,0,0.18);
-    animation: slideUp 0.2s ease;
-  }
+  .place-input-wrap { display: flex; gap: 8px; }
+  .place-search-btn { background: var(--red); color: white; border: none; border-radius: 10px; padding: 10px 14px; font-size: 13px; font-weight: 600; font-family: inherit; cursor: pointer; white-space: nowrap; flex-shrink: 0; transition: background 0.15s; }
+  .place-search-btn:hover { background: #a93226; }
+  .photo-upload-area { border: 2px dashed var(--border); border-radius: 12px; min-height: 70px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: border-color 0.2s; }
+  .photo-upload-area:hover { border-color: var(--red); }
+  .photo-upload-placeholder { display: flex; flex-direction: column; align-items: center; padding: 14px; }
+  .photo-preview-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+  .photo-thumb-wrap { position: relative; width: 80px; height: 80px; border-radius: 10px; overflow: hidden; }
+  .photo-thumb { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .photo-thumb-del { position: absolute; top: 3px; right: 3px; background: rgba(0,0,0,0.55); color: white; border: none; border-radius: 50%; width: 20px; height: 20px; font-size: 11px; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; }
+  .day-select-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 6px; }
+  .day-select-btn { background: #f5f0ea; border: 1.5px solid var(--border); border-radius: 10px; padding: 7px 4px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 2px; transition: all 0.15s; font-family: inherit; }
+  .day-select-btn.selected { background: var(--red); border-color: var(--red); color: white; }
+  .day-select-btn.selected .day-select-weekday { color: rgba(255,255,255,0.75); }
+  .day-select-emoji { font-size: 14px; line-height: 1; }
+  .day-select-date { font-size: 12px; font-weight: 700; }
+  .day-select-weekday { font-size: 10px; color: var(--muted); }
+
+  /* ── CONFIRM DIALOG ── */
+  .confirm-dialog { background: white; border-radius: 20px; padding: 28px 24px 20px; width: 300px; text-align: center; box-shadow: 0 8px 32px rgba(0,0,0,0.18); animation: slideUp 0.2s ease; }
   .confirm-icon { font-size: 36px; margin-bottom: 10px; }
   .confirm-title { font-size: 17px; font-weight: 700; color: var(--ink); margin-bottom: 6px; }
   .confirm-msg { font-size: 13px; color: var(--muted); line-height: 1.6; margin-bottom: 20px; }
   .confirm-buttons { display: flex; gap: 10px; }
-  .confirm-btn-cancel {
-    flex: 1; background: #f5f0ea; border: none; border-radius: 12px;
-    padding: 12px; font-size: 14px; font-weight: 600; cursor: pointer;
-    color: var(--muted); font-family: inherit;
-  }
-  .confirm-btn-ok {
-    flex: 1; background: var(--red2); border: none; border-radius: 12px;
-    padding: 12px; font-size: 14px; font-weight: 700; cursor: pointer;
-    color: white; font-family: inherit;
-  }
+  .confirm-btn-cancel { flex: 1; background: #f5f0ea; border: none; border-radius: 12px; padding: 12px; font-size: 14px; font-weight: 600; cursor: pointer; color: var(--muted); font-family: inherit; }
+  .confirm-btn-ok { flex: 1; background: var(--red2); border: none; border-radius: 12px; padding: 12px; font-size: 14px; font-weight: 700; cursor: pointer; color: white; font-family: inherit; }
+
   /* ── BACKUP BAR ── */
-  .backup-bar {
-    display: flex; align-items: center; gap: 12px;
-    padding: 0.75rem 1.25rem;
-    margin: 0 1.25rem 0.5rem;
-  }
-  .backup-btn {
-    background: #f5f0ea; border: 1.5px solid var(--border);
-    border-radius: 10px; padding: 8px 16px;
-    font-size: 12px; font-weight: 600; cursor: pointer;
-    color: var(--muted); font-family: inherit;
-    transition: background 0.15s;
-  }
+  .backup-bar { display: flex; align-items: center; gap: 12px; padding: 0.75rem 1.25rem; margin: 0 0 0.5rem; }
+  .backup-btn { background: #f5f0ea; border: 1.5px solid var(--border); border-radius: 10px; padding: 8px 16px; font-size: 12px; font-weight: 600; cursor: pointer; color: var(--muted); font-family: inherit; transition: background 0.15s; }
   .backup-btn:hover { background: #ece7e0; }
   .backup-status { font-size: 12px; color: var(--muted); }
+
   /* ── FOOTER ── */
-  .app-footer {
-    text-align: center;
-    padding: 1rem 1.25rem 2rem;
-    font-size: 12px;
-    color: var(--muted);
-  }
+  .app-footer { text-align: center; padding: 1rem 1.25rem 2rem; font-size: 12px; color: var(--muted); }
   .app-footer span { color: var(--red); }
-  /* ── CHECKLIST ── */
-  .checklist-section {
-    margin: 1rem 1.25rem 0;
-    background: white;
-    border-radius: 20px;
-    border: 1.5px solid var(--border);
-    overflow: hidden;
-  }
-  .checklist-header {
-    padding: 1rem 1.25rem;
-    display: flex; align-items: center; justify-content: space-between;
-    border-bottom: 0.5px solid var(--border);
-    cursor: pointer;
-  }
-  .checklist-title { font-size: 15px; font-weight: 700; }
-  .checklist-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
-  .checklist-toggle { font-size: 12px; color: var(--muted); }
-  .progress-bar-wrap {
-    height: 4px; background: #f0ebe4;
-    margin: 0 1.25rem;
-  }
-  .progress-bar-fill {
-    height: 100%; background: var(--red);
-    border-radius: 2px; transition: width 0.4s ease;
-  }
-  .checklist-body { padding: 0.5rem 0; }
-  .checklist-item {
-    display: flex; align-items: center; gap: 10px;
-    padding: 10px 1.25rem;
-    border-bottom: 0.5px solid var(--border);
-    transition: background 0.15s;
-  }
-  .checklist-item:last-child { border-bottom: none; }
-  .checklist-item-done { opacity: 0.5; }
-  .checklist-checkbox {
-    width: 20px; height: 20px; border-radius: 50%;
-    border: 2px solid var(--border);
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer; flex-shrink: 0;
-    font-size: 11px; color: transparent;
-    transition: all 0.2s;
-  }
-  .checklist-checkbox.checked {
-    background: var(--red); border-color: var(--red); color: white;
-  }
-  .checklist-item-main { flex: 1; min-width: 0; }
-  .checklist-item-text { font-size: 14px; font-weight: 500; }
-  .checklist-item-text.done { text-decoration: line-through; color: var(--muted); }
-  .checklist-item-time { font-size: 11px; color: var(--muted); min-width: 72px; padding-top: 3px; flex-shrink: 0; }
-  .checklist-day-group { margin-bottom: 4px; }
-  .checklist-day-group-label {
-    font-size: 10px; font-weight: 700; letter-spacing: 1.5px;
-    color: var(--muted); padding: 10px 1.25rem 5px;
-    display: flex; align-items: center; gap: 6px;
-    border-bottom: 0.5px solid var(--border);
-  }
-  .checklist-item-sub { font-size: 11px; color: #bbb; margin-top: 2px; }
-  .checklist-empty {
-    text-align: center; padding: 2rem 1rem;
-    color: #ccc; font-size: 13px; line-height: 1.8;
-  }
-  .cl-detail-btn {
-    background: none; border: none; font-size: 16px;
-    cursor: pointer; padding: 0 2px; flex-shrink: 0;
-    line-height: 1; opacity: 0.6; transition: opacity 0.15s;
-  }
-  .cl-detail-btn:hover { opacity: 1; }
-  .cl-detail-box {
-    margin: 0 1.25rem 6px calc(20px + 10px + 1.25rem);
-    background: #f7f2eb; border-radius: 8px;
-    padding: 7px 10px; animation: fadeIn 0.15s ease;
-  }
-  .cl-detail-row { font-size: 12px; color: var(--muted); line-height: 1.6; }
+
+  /* ── PWA BANNER ── */
+  #pwa-install-banner { display: none; position: fixed; bottom: 0; left: 0; right: 0; z-index: 9999; background: #2c1810; padding: 14px 20px; align-items: center; justify-content: space-between; gap: 12px; box-shadow: 0 -4px 20px rgba(0,0,0,0.3); }
+
   @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
   @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 </style>
@@ -799,10 +274,9 @@
 <!-- ★ SPLASH SCREEN ★ -->
 <div id="splashScreen">
   <div class="splash-icon-wrap">
-    <img
-      src="https://raw.githubusercontent.com/guiyoungchoi-afk/Osaka-planner/main/public/icon-512.png"
-      alt="기모노 아이콘"
-      onerror="this.src='https://raw.githubusercontent.com/guiyoungchoi-afk/Osaka-planner/main/public/icon-192.png'">
+    <img src="https://raw.githubusercontent.com/guiyoungchoi-afk/Osaka-planner/main/public/icon-512.png"
+         alt="기모노 아이콘"
+         onerror="this.src='https://raw.githubusercontent.com/guiyoungchoi-afk/Osaka-planner/main/public/icon-192.png'">
   </div>
   <div class="splash-title">조씨네<br><em>Osaka Planner</em></div>
   <div class="splash-sub">May 24 – 31, 2026 · 8 Days 🌸</div>
@@ -811,7 +285,7 @@
 </div>
 
 <!-- PWA 설치 배너 -->
-<div id="pwa-install-banner" style="display:none; position:fixed; bottom:0; left:0; right:0; z-index:9999; background:#2c1810; padding:14px 20px; align-items:center; justify-content:space-between; gap:12px; box-shadow:0 -4px 20px rgba(0,0,0,0.3);">
+<div id="pwa-install-banner">
   <div style="display:flex; align-items:center; gap:12px;">
     <div style="font-size:28px;">🏯</div>
     <div>
@@ -859,27 +333,43 @@
 </div>
 
 <!-- PHOTO ZONE -->
-<div class="photo-zone" id="photoZone" onclick="document.getElementById('photoInput').click()">
-  <input type="file" id="photoInput" accept="image/*" style="display:none">
-  <img id="photoPreview" src="" alt="가족사진">
-  <div class="photo-overlay">
-    <div class="photo-overlay-icon">📷</div>
-    <div class="photo-overlay-text">가족사진 추가</div>
+<div style="margin-top:1.25rem;">
+  <div class="photo-zone" id="photoZone" onclick="document.getElementById('photoInput').click()">
+    <div class="photo-placeholder">
+      <div class="photo-icon">📸</div>
+      <p>가족사진을 올려주세요</p>
+      <span>탭하여 사진 선택</span>
+    </div>
+    <img id="photoPreview" src="" alt="가족사진">
+    <button class="photo-change-btn" onclick="event.stopPropagation(); document.getElementById('photoInput').click()">✎ 사진 변경</button>
   </div>
+  <input type="file" id="photoInput" accept="image/*">
 </div>
 
-<!-- WEATHER -->
-<div style="margin-top:1rem;">
-  <div class="section-label">날씨 예보</div>
-  <div class="weather-strip" id="weatherStrip">
-    <div class="weather-card"><div class="weather-date">로딩중</div><div class="weather-icon">⏳</div><div class="weather-temp">—</div></div>
+<!-- CHECKLIST SECTION -->
+<div style="margin-top:1.25rem;">
+  <div class="section-label" style="cursor:pointer;" onclick="toggleChecklistPanel()" id="checklistSectionLabel">
+    ✅ 체크리스트
+    <span id="checklistToggleIcon" style="font-size:13px; color:var(--muted); margin-left:4px;">▼</span>
+  </div>
+  <div class="checklist-section" id="checklistSection" style="display:none;">
+    <div class="checklist-head">
+      <div class="checklist-head-title" id="checklistTitle">📋 Checklists</div>
+      <div class="checklist-head-sub" id="checklistSub">날짜별 일정에서 ✅ 체크 항목을 추가하면 여기에 표시됩니다</div>
+      <div class="progress-bar-wrap" id="progressBarWrap" style="display:none">
+        <div class="progress-bar-fill" id="progressBarFill" style="width:0%"></div>
+      </div>
+    </div>
+    <div class="checklist-body" id="checklistBody">
+      <div class="checklist-empty">📅 날짜별 일정에서<br>✅ 체크 카테고리로 일정을 추가해 보세요</div>
+    </div>
   </div>
 </div>
 
 <!-- DAY CARDS -->
 <div style="margin-top:1.25rem;">
   <div class="section-label">날짜별 일정</div>
-  <div class="days-scroll" id="daysGrid"></div>
+  <div class="days-grid" id="daysGrid"></div>
 </div>
 
 <!-- SCHEDULE PANEL -->
@@ -900,22 +390,6 @@
     <div class="memo-body">
       <textarea id="dayMemo" placeholder="이 날의 메모나 팁을 입력하세요..." oninput="saveMemo()"></textarea>
     </div>
-  </div>
-</div>
-
-<!-- CHECKLIST -->
-<div class="checklist-section" style="margin-bottom:1rem;">
-  <div class="checklist-header" onclick="toggleChecklistPanel()">
-    <div>
-      <div class="checklist-title">✅ 체크리스트</div>
-      <div class="checklist-sub" id="checklistSub">날짜별 일정에서 ✅ 체크 항목을 추가하면 여기에 표시됩니다</div>
-    </div>
-    <div class="checklist-toggle" id="checklistToggleIcon">▼</div>
-  </div>
-  <div id="checklistSection" style="display:none">
-    <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progressBarFill" style="width:0%"></div></div>
-    <div id="progressBarWrap" style="display:none"><div class="progress-bar-wrap"><div class="progress-bar-fill" id="progressBarFill2" style="width:0%"></div></div></div>
-    <div class="checklist-body" id="checklistBody"></div>
   </div>
 </div>
 
@@ -951,40 +425,16 @@
       <div class="form-group">
         <label>카테고리</label>
         <div class="cat-grid" id="catGrid">
-          <button class="cat-btn selected" data-cat="move" onclick="selectCat(this)">
-            <span class="cat-btn-icon">🚃</span>
-            <span class="cat-btn-label">이동</span>
-          </button>
-          <button class="cat-btn" data-cat="tour" onclick="selectCat(this)">
-            <span class="cat-btn-icon">🏯</span>
-            <span class="cat-btn-label">관광</span>
-          </button>
-          <button class="cat-btn" data-cat="food" onclick="selectCat(this)">
-            <span class="cat-btn-icon">🍜</span>
-            <span class="cat-btn-label">식사</span>
-          </button>
-          <button class="cat-btn" data-cat="stay" onclick="selectCat(this)">
-            <span class="cat-btn-icon">🏨</span>
-            <span class="cat-btn-label">숙박</span>
-          </button>
-          <button class="cat-btn" data-cat="check" onclick="selectCat(this)">
-            <span class="cat-btn-icon">✅</span>
-            <span class="cat-btn-label">체크</span>
-          </button>
-          <button class="cat-btn" data-cat="etc" onclick="selectCat(this)">
-            <span class="cat-btn-icon">📌</span>
-            <span class="cat-btn-label">기타</span>
-          </button>
+          <button class="cat-btn selected" data-cat="move" onclick="selectCat(this)"><span class="cat-btn-icon">🚃</span><span class="cat-btn-label">이동</span></button>
+          <button class="cat-btn" data-cat="tour" onclick="selectCat(this)"><span class="cat-btn-icon">🏯</span><span class="cat-btn-label">관광</span></button>
+          <button class="cat-btn" data-cat="food" onclick="selectCat(this)"><span class="cat-btn-icon">🍜</span><span class="cat-btn-label">식사</span></button>
+          <button class="cat-btn" data-cat="stay" onclick="selectCat(this)"><span class="cat-btn-icon">🏨</span><span class="cat-btn-label">숙박</span></button>
+          <button class="cat-btn" data-cat="check" onclick="selectCat(this)"><span class="cat-btn-icon">✅</span><span class="cat-btn-label">체크</span></button>
+          <button class="cat-btn" data-cat="etc" onclick="selectCat(this)"><span class="cat-btn-icon">📌</span><span class="cat-btn-label">기타</span></button>
         </div>
       </div>
-      <div class="form-group">
-        <label>시간</label>
-        <input type="time" id="fTime">
-      </div>
-      <div class="form-group">
-        <label>내용</label>
-        <input type="text" id="fContent" placeholder="예: 도톤보리 타코야키 맛집">
-      </div>
+      <div class="form-group"><label>시간</label><input type="time" id="fTime"></div>
+      <div class="form-group"><label>내용</label><input type="text" id="fContent" placeholder="예: 도톤보리 타코야키 맛집"></div>
       <div class="form-group">
         <label>장소 (선택)</label>
         <div class="place-input-wrap">
@@ -992,10 +442,7 @@
           <button type="button" class="place-search-btn" onclick="searchPlace('fPlace')">🔍 검색</button>
         </div>
       </div>
-      <div class="form-group">
-        <label>메모 (선택)</label>
-        <textarea id="fMemo" placeholder="추가 메모, 주소, 예약 번호 등"></textarea>
-      </div>
+      <div class="form-group"><label>메모 (선택)</label><textarea id="fMemo" placeholder="추가 메모, 주소, 예약 번호 등"></textarea></div>
       <div class="form-group">
         <label>사진 (선택)</label>
         <div class="photo-upload-area" id="fPhotoArea" onclick="document.getElementById('fPhotoInput').click()">
@@ -1035,18 +482,9 @@
           <button class="cat-btn" data-cat="etc" onclick="selectEditCat(this)"><span class="cat-btn-icon">📌</span><span class="cat-btn-label">기타</span></button>
         </div>
       </div>
-      <div class="form-group">
-        <label>날짜</label>
-        <div class="day-select-grid" id="eFDayGrid"></div>
-      </div>
-      <div class="form-group">
-        <label>시간</label>
-        <input type="time" id="eFTime">
-      </div>
-      <div class="form-group">
-        <label>내용</label>
-        <input type="text" id="eFContent">
-      </div>
+      <div class="form-group"><label>날짜</label><div class="day-select-grid" id="eFDayGrid"></div></div>
+      <div class="form-group"><label>시간</label><input type="time" id="eFTime"></div>
+      <div class="form-group"><label>내용</label><input type="text" id="eFContent"></div>
       <div class="form-group">
         <label>장소 (선택)</label>
         <div class="place-input-wrap">
@@ -1054,10 +492,7 @@
           <button type="button" class="place-search-btn" onclick="searchPlace('eFPlace')">🔍 검색</button>
         </div>
       </div>
-      <div class="form-group">
-        <label>메모 (선택)</label>
-        <textarea id="eFMemo"></textarea>
-      </div>
+      <div class="form-group"><label>메모 (선택)</label><textarea id="eFMemo"></textarea></div>
       <div class="form-group">
         <label>사진 (선택)</label>
         <div class="photo-upload-area" id="eFPhotoArea" onclick="document.getElementById('eFPhotoInput').click()">
@@ -1084,7 +519,6 @@ import {
   deleteDoc, updateDoc, query, orderBy, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-// ── FIREBASE ─────────────────────────────────────────────────────
 const firebaseConfig = {
   apiKey: "AIzaSyAJxW5pRGS5s4svn98rVqHbbTDRNFnbpUI",
   authDomain: "osaka-planner-d09f4.firebaseapp.com",
@@ -1096,11 +530,9 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// Cloudinary 설정
 const CLOUDINARY_CLOUD = "diogojypo";
 const CLOUDINARY_PRESET = "osaka_planner";
 
-// ── DATA ─────────────────────────────────────────────────────────
 const DAYS = [
   { date:'5/24', weekday:'일', name:'출발&교토로 이동', emoji:'✈️' },
   { date:'5/25', weekday:'월', name:'교토', emoji:'⛩️' },
@@ -1125,80 +557,72 @@ let itemsCache = {};
 let memosCache = {};
 let unsubItems = null;
 let unsubMemo  = null;
-
-// ── HELPERS ──────────────────────────────────────────────────────
-function escHtml(str) {
-  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-// ── WEATHER ──────────────────────────────────────────────────────
-function weatherCodeToEmoji(code) {
-  if (code === 0) return { icon: '☀️', label: '맑음' };
-  if (code <= 2)  return { icon: '🌤️', label: '구름조금' };
-  if (code <= 3)  return { icon: '☁️', label: '흐림' };
-  if (code <= 48) return { icon: '🌫️', label: '안개' };
-  if (code <= 55) return { icon: '🌦️', label: '이슬비' };
-  if (code <= 65) return { icon: '🌧️', label: '비' };
-  if (code <= 77) return { icon: '❄️', label: '눈' };
-  if (code <= 82) return { icon: '🌧️', label: '소나기' };
-  if (code <= 99) return { icon: '⛈️', label: '뇌우' };
-  return { icon: '🌡️', label: '' };
-}
 let weatherCache = {};
+
+function escHtml(str) {
+  return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── WEATHER ──
+function weatherCodeToEmoji(code) {
+  if (code===0) return {icon:'☀️'};
+  if (code<=2)  return {icon:'🌤️'};
+  if (code<=3)  return {icon:'☁️'};
+  if (code<=48) return {icon:'🌫️'};
+  if (code<=55) return {icon:'🌦️'};
+  if (code<=65) return {icon:'🌧️'};
+  if (code<=77) return {icon:'❄️'};
+  if (code<=82) return {icon:'🌧️'};
+  if (code<=99) return {icon:'⛈️'};
+  return {icon:'🌡️'};
+}
 async function fetchWeather() {
   const locations = [
-    { key: 'osaka', lat: 34.6937, lon: 135.5023 },
-    { key: 'kyoto', lat: 35.0116, lon: 135.7681 },
+    { key:'osaka', lat:34.6937, lon:135.5023 },
+    { key:'kyoto', lat:35.0116, lon:135.7681 },
   ];
   for (const loc of locations) {
     try {
       const url = `https://api.open-meteo.com/v1/forecast?latitude=${loc.lat}&longitude=${loc.lon}&daily=weathercode,temperature_2m_max,temperature_2m_min&timezone=Asia%2FTokyo&start_date=2026-05-24&end_date=2026-05-31&forecast_days=16`;
       const res = await fetch(url);
       const data = await res.json();
-      const dates = data.daily.time;
-      dates.forEach((date, i) => {
-        weatherCache[loc.key + '_' + date] = {
+      data.daily.time.forEach((date, i) => {
+        weatherCache[loc.key+'_'+date] = {
           code: data.daily.weathercode[i],
           max: Math.round(data.daily.temperature_2m_max[i]),
           min: Math.round(data.daily.temperature_2m_min[i]),
         };
       });
-    } catch(e) {
-      console.log('날씨 로드 실패:', e);
-    }
+    } catch(e) {}
   }
-  updateWeatherCards();
+  renderDaysGrid();
 }
-function updateWeatherCards() {
-  const strip = document.getElementById('weatherStrip');
+
+// ── DAYS GRID ──
+window.renderDaysGrid = function() {
+  const grid = document.getElementById('daysGrid');
   const dateMap = ['2026-05-24','2026-05-25','2026-05-26','2026-05-27','2026-05-28','2026-05-29','2026-05-30','2026-05-31'];
   const locMap  = ['kyoto','kyoto','kyoto','osaka','osaka','osaka','osaka','osaka'];
-  strip.innerHTML = dateMap.map((date, i) => {
-    const key = locMap[i] + '_' + date;
-    const w = weatherCache[key];
-    const d = DAYS[i];
-    if (!w) return `<div class="weather-card"><div class="weather-date">${d.date}</div><div class="weather-icon">—</div><div class="weather-temp">—</div></div>`;
-    const { icon } = weatherCodeToEmoji(w.code);
-    return `<div class="weather-card"><div class="weather-date">${d.date}(${d.weekday})</div><div class="weather-icon">${icon}</div><div class="weather-temp">${w.max}° <span>${w.min}°</span></div></div>`;
-  }).join('');
-}
-
-// ── DAYS GRID ────────────────────────────────────────────────────
-function renderDaysGrid() {
-  const grid = document.getElementById('daysGrid');
   grid.innerHTML = DAYS.map((d, i) => {
-    const count = (itemsCache[i] || []).length;
-    return `<div class="day-card${activeDay === i ? ' active' : ''}" onclick="selectDay(${i})">
-      <div class="day-emoji">${d.emoji}</div>
-      <div class="day-date">${d.date}</div>
-      <div class="day-weekday">${d.weekday}</div>
-      <div class="day-name">${d.name}</div>
-      ${count > 0 ? `<div class="day-badge">${count}</div>` : ''}
+    const items = itemsCache[i] || [];
+    const w = weatherCache[locMap[i]+'_'+dateMap[i]];
+    let weatherHtml = '<span class="dc-weather-loading">—</span>';
+    if (w) {
+      const {icon} = weatherCodeToEmoji(w.code);
+      weatherHtml = `${icon} ${w.max}°/${w.min}°`;
+    }
+    return `<div class="day-card${activeDay===i?' active':''}" id="dayCard-${i}" onclick="selectDay(${i})">
+      <span class="dc-emoji">${d.emoji}</span>
+      <span class="dc-date">${d.date}</span>
+      <span class="dc-weekday">${d.weekday}</span>
+      <span class="dc-name">${d.name}</span>
+      <div class="dc-weather">${weatherHtml}</div>
+      ${items.length>0?'<div class="dot-badge"></div>':''}
     </div>`;
   }).join('');
-}
+};
 
-// ── SELECT DAY ───────────────────────────────────────────────────
+// ── SELECT DAY ──
 window.selectDay = function(i) {
   if (unsubItems) unsubItems();
   if (unsubMemo)  unsubMemo();
@@ -1206,86 +630,90 @@ window.selectDay = function(i) {
   renderDaysGrid();
   const d = DAYS[i];
   document.getElementById('panelTitle').textContent = `${d.emoji} ${d.date}(${d.weekday}) · ${d.name}`;
-  document.getElementById('panelSub').textContent = '일정을 추가해 보세요';
   document.getElementById('scheduleWrap').style.display = '';
-  document.getElementById('itemsContainer').innerHTML = '<div style="padding:1rem 1.25rem;color:#ccc;font-size:13px;">로딩 중...</div>';
+  history.pushState({ scheduleOpen: true }, '');
+  setTimeout(() => {
+    document.getElementById('scheduleWrap').scrollIntoView({ behavior:'smooth', block:'nearest' });
+  }, 100);
 
-  // 실시간 아이템
   const q = query(collection(db, 'days', String(i), 'items'), orderBy('createdAt'));
   unsubItems = onSnapshot(q, snap => {
     itemsCache[i] = snap.docs.map(d => ({ docId: d.id, ...d.data() }));
-    renderItems(itemsCache[i]);
+    renderPanel();
     renderDaysGrid();
     renderChecklist();
   });
 
-  // 실시간 메모
   unsubMemo = onSnapshot(doc(db, 'memos', String(i)), snap => {
-    const text = snap.exists() ? (snap.data().text || '') : '';
+    const text = snap.exists() ? (snap.data().text||'') : '';
     memosCache[i] = text;
     document.getElementById('dayMemo').value = text;
   });
 };
 
-// ── RENDER ITEMS ─────────────────────────────────────────────────
-function renderItems(items) {
+window.addEventListener('popstate', function() {
+  const wrap = document.getElementById('scheduleWrap');
+  if (wrap && wrap.style.display !== 'none') wrap.style.display = 'none';
+});
+
+// ── RENDER PANEL ──
+window.renderPanel = function() {
+  if (activeDay === null) return;
+  const d = DAYS[activeDay];
+  const items = (itemsCache[activeDay]||[]).slice().sort((a,b)=>(a.time||'').localeCompare(b.time||''));
+  document.getElementById('panelSub').textContent = items.length ? `총 ${items.length}개 일정` : '+ 버튼으로 일정을 추가하세요';
+  document.getElementById('dayMemo').value = memosCache[activeDay] || '';
   const container = document.getElementById('itemsContainer');
   if (!items.length) {
-    container.innerHTML = `<div class="empty-state" style="text-align:center;padding:2rem 1rem;color:#ccc;font-size:13px;"><span style="font-size:2rem;display:block;margin-bottom:8px;">🗓️</span>아직 일정이 없어요.<br>위 + 버튼으로 추가해 보세요!</div>`;
+    container.innerHTML = `<div class="empty-state"><span class="empty-icon">🗓️</span>아직 일정이 없어요.<br>위 + 버튼으로 추가해 보세요!</div>`;
     return;
   }
   container.innerHTML = items.map(item => {
     const cat = CAT[item.cat] || CAT.etc;
     const canMap = ['move','tour','food','stay','etc'].includes(item.cat);
     const mapQuery = encodeURIComponent(item.place || item.content);
+    const urls = item.photoUrls && item.photoUrls.length > 0 ? item.photoUrls : (item.photoUrl ? [item.photoUrl] : []);
+    window.__photoCache = window.__photoCache || {};
+    if (urls.length > 0) window.__photoCache[item.docId] = urls;
     return `
     <div class="item" id="item-${item.docId}">
       <div class="item-cat-icon">${cat.emoji}</div>
-      <div class="item-time">${escHtml(item.time || '—')}</div>
+      <div class="item-time">${escHtml(item.time||'—')}</div>
       <div class="item-main">
         <span class="item-badge ${cat.cls}">${cat.label}</span>
         <div class="item-text">${escHtml(item.content)}</div>
-        ${item.place ? `<div class="item-place">📍 ${escHtml(item.place)}</div>` : ''}
-        ${item.memo ? `<div class="item-memo-wrap">
+        ${item.place?`<div class="item-place">📍 ${escHtml(item.place)}</div>`:''}
+        ${item.memo?`<div class="item-memo-wrap">
           <div class="item-memo item-memo-collapsed" id="memo-${item.docId}">${escHtml(item.memo)}</div>
-          ${item.memo.length > 40 ? `<button class="memo-toggle-btn" onclick="toggleMemo('${item.docId}', this)">더 보기 ▾</button>` : ''}
-        </div>` : ''}
-        ${(() => {
-          const urls = item.photoUrls && item.photoUrls.length > 0 ? item.photoUrls : (item.photoUrl ? [item.photoUrl] : []);
-          if (urls.length === 0) return '';
-          const docId = item.docId;
-          window.__photoCache = window.__photoCache || {};
-          window.__photoCache[docId] = urls;
-          return `<div class="item-photos-grid">${urls.map((u,idx) =>
-            `<img class="item-photo" src="${u}" onclick="openPhotoViewerById('${docId}', ${idx})" alt="첨부사진">`
-          ).join('')}</div>`;
-        })()}
+          ${item.memo.length>40?`<button class="memo-toggle-btn" onclick="toggleMemo('${item.docId}',this)">더 보기 ▾</button>`:''}
+        </div>`:''}
+        ${urls.length>0?`<div class="item-photos-grid">${urls.map((u,idx)=>`<img class="item-photo" src="${u}" onclick="openPhotoViewerById('${item.docId}',${idx})" alt="첨부사진">`).join('')}</div>`:''}
       </div>
       <div class="item-actions">
-        ${canMap ? `<button class="item-action-btn map-btn" onclick="openMap('${mapQuery}')" title="지도">🗺️</button>` : ''}
+        ${canMap?`<button class="item-action-btn" onclick="openMap('${mapQuery}')" title="지도">🗺️</button>`:''}
         <button class="item-action-btn" onclick="openEditModal('${item.docId}')" title="수정">✎</button>
         <button class="item-action-btn del" onclick="deleteItem('${item.docId}')" title="삭제">✕</button>
       </div>
     </div>`;
   }).join('');
-}
+};
 
-// ── MEMO ─────────────────────────────────────────────────────────
+// ── MEMO ──
 let memoTimer;
 window.saveMemo = function() {
-  if (activeDay === null) return;
+  if (activeDay===null) return;
   clearTimeout(memoTimer);
   memoTimer = setTimeout(async () => {
     const text = document.getElementById('dayMemo').value;
-    await setDoc(doc(db, 'memos', String(activeDay)), { text });
+    await setDoc(doc(db,'memos',String(activeDay)), { text });
   }, 800);
 };
 
-// ── ADD MODAL ────────────────────────────────────────────────────
+// ── ADD MODAL ──
 let selectedCat = 'move';
 window.openAddModal = function() {
   selectedCat = 'move';
-  document.querySelectorAll('#catGrid .cat-btn').forEach(b => b.classList.remove('selected'));
+  document.querySelectorAll('#catGrid .cat-btn').forEach(b=>b.classList.remove('selected'));
   document.querySelector('#catGrid [data-cat="move"]').classList.add('selected');
   document.getElementById('fTime').value = '';
   document.getElementById('fContent').value = '';
@@ -1295,11 +723,11 @@ window.openAddModal = function() {
   document.getElementById('fPhotoGrid').innerHTML = '';
   document.getElementById('fPhotoPlaceholder').style.display = 'flex';
   document.getElementById('addOverlay').classList.add('open');
-  setTimeout(() => document.getElementById('fContent').focus(), 350);
+  setTimeout(()=>document.getElementById('fContent').focus(), 350);
 };
 window.closeAddModal = function() { document.getElementById('addOverlay').classList.remove('open'); };
 window.selectCat = function(btn) {
-  document.querySelectorAll('#catGrid .cat-btn').forEach(b => b.classList.remove('selected'));
+  document.querySelectorAll('#catGrid .cat-btn').forEach(b=>b.classList.remove('selected'));
   btn.classList.add('selected');
   selectedCat = btn.dataset.cat;
 };
@@ -1307,16 +735,12 @@ window.saveItem = async function() {
   const content = document.getElementById('fContent').value.trim();
   if (!content) { document.getElementById('fContent').focus(); return; }
   const saveBtn = document.getElementById('saveBtn');
-  saveBtn.textContent = '저장 중...';
-  saveBtn.disabled = true;
+  saveBtn.textContent = '저장 중...'; saveBtn.disabled = true;
   try {
     const photoFiles = document.getElementById('fPhotoInput').files;
     const photoUrls = [];
-    for (const file of photoFiles) {
-      const url = await uploadToCloudinary(file);
-      photoUrls.push(url);
-    }
-    await addDoc(collection(db, 'days', String(activeDay), 'items'), {
+    for (const file of photoFiles) photoUrls.push(await uploadToCloudinary(file));
+    await addDoc(collection(db,'days',String(activeDay),'items'), {
       cat: selectedCat,
       time: document.getElementById('fTime').value || '00:00',
       content,
@@ -1326,60 +750,54 @@ window.saveItem = async function() {
       createdAt: serverTimestamp(),
     });
     window.closeAddModal();
-  } finally {
-    saveBtn.textContent = '저장';
-    saveBtn.disabled = false;
-  }
+  } finally { saveBtn.textContent='저장'; saveBtn.disabled=false; }
 };
 
-// ── EDIT MODAL ───────────────────────────────────────────────────
+// ── EDIT MODAL ──
 let editDocId = null;
 let editCat = 'move';
 let editTargetDay = null;
 window.openEditModal = function(docId) {
   editDocId = docId;
   editTargetDay = activeDay;
-  const item = (itemsCache[activeDay] || []).find(it => it.docId === docId);
+  const item = (itemsCache[activeDay]||[]).find(it=>it.docId===docId);
   if (!item) return;
   editCat = item.cat || 'move';
-  document.querySelectorAll('#editCatGrid .cat-btn').forEach(b => b.classList.remove('selected'));
+  document.querySelectorAll('#editCatGrid .cat-btn').forEach(b=>b.classList.remove('selected'));
   const catBtn = document.querySelector(`#editCatGrid [data-cat="${editCat}"]`);
   if (catBtn) catBtn.classList.add('selected');
-  // 날짜 선택 그리드
-  const eFDayGrid = document.getElementById('eFDayGrid');
-  eFDayGrid.innerHTML = DAYS.map((d, i) =>
-    `<button class="day-select-btn${i === activeDay ? ' selected' : ''}" onclick="selectEditDay(${i}, this)">
-      <span class="day-select-emoji">${d.emoji}</span>
-      <span class="day-select-date">${d.date}</span>
-      <span class="day-select-weekday">${d.weekday}</span>
-    </button>`
-  ).join('');
-  document.getElementById('eFTime').value = item.time || '';
-  document.getElementById('eFContent').value = item.content || '';
-  document.getElementById('eFPlace').value = item.place || '';
-  document.getElementById('eFMemo').value = item.memo || '';
-  // 기존 사진
+  const grid = document.getElementById('eFDayGrid');
+  grid.innerHTML = DAYS.map((d,i)=>`<button class="day-select-btn${i===activeDay?' selected':''}" onclick="selectEditDay(${i},this)">
+    <span class="day-select-emoji">${d.emoji}</span>
+    <span class="day-select-date">${d.date}</span>
+    <span class="day-select-weekday">${d.weekday}</span>
+  </button>`).join('');
+  document.getElementById('eFTime').value = item.time||'';
+  document.getElementById('eFContent').value = item.content||'';
+  document.getElementById('eFPlace').value = item.place||'';
+  document.getElementById('eFMemo').value = item.memo||'';
+  document.getElementById('eFPhotoInput').value = '';
   const eFGrid = document.getElementById('eFPhotoGrid');
   eFGrid.innerHTML = '';
-  const existingUrls = item.photoUrls && item.photoUrls.length > 0 ? item.photoUrls : (item.photoUrl ? [item.photoUrl] : []);
+  const existingUrls = item.photoUrls&&item.photoUrls.length>0 ? item.photoUrls : (item.photoUrl?[item.photoUrl]:[]);
   window._editExistingPhotoUrls = [...existingUrls];
-  existingUrls.forEach((url, idx) => {
+  existingUrls.forEach((url,idx)=>{
     const wrap = document.createElement('div');
     wrap.className = 'photo-thumb-wrap';
     wrap.innerHTML = `<img src="${url}" class="photo-thumb"><button class="photo-thumb-del" onclick="removeExistingPhoto(${idx})">✕</button>`;
     eFGrid.appendChild(wrap);
   });
-  document.getElementById('eFPhotoPlaceholder').style.display = existingUrls.length > 0 ? 'none' : 'flex';
+  document.getElementById('eFPhotoPlaceholder').style.display = existingUrls.length>0?'none':'flex';
   document.getElementById('editOverlay').classList.add('open');
 };
 window.selectEditDay = function(i, btn) {
   editTargetDay = i;
-  document.querySelectorAll('#eFDayGrid .day-select-btn').forEach(b => b.classList.remove('selected'));
+  document.querySelectorAll('#eFDayGrid .day-select-btn').forEach(b=>b.classList.remove('selected'));
   btn.classList.add('selected');
 };
-window.closeEditModal = function() { document.getElementById('editOverlay').classList.remove('open'); editDocId = null; };
+window.closeEditModal = function() { document.getElementById('editOverlay').classList.remove('open'); editDocId=null; };
 window.selectEditCat = function(btn) {
-  document.querySelectorAll('#editCatGrid .cat-btn').forEach(b => b.classList.remove('selected'));
+  document.querySelectorAll('#editCatGrid .cat-btn').forEach(b=>b.classList.remove('selected'));
   btn.classList.add('selected');
   editCat = btn.dataset.cat;
 };
@@ -1387,458 +805,326 @@ window.updateItem = async function() {
   const content = document.getElementById('eFContent').value.trim();
   if (!content) return;
   const updateBtn = document.querySelector('#editOverlay .btn-save');
-  updateBtn.textContent = '저장 중...';
-  updateBtn.disabled = true;
+  updateBtn.textContent='저장 중...'; updateBtn.disabled=true;
   try {
     const newPhotoFiles = document.getElementById('eFPhotoInput').files;
     const newPhotoUrls = [];
-    for (const file of newPhotoFiles) {
-      const url = await uploadToCloudinary(file);
-      newPhotoUrls.push(url);
-    }
-    const existingUrls = window._editExistingPhotoUrls || [];
+    for (const file of newPhotoFiles) newPhotoUrls.push(await uploadToCloudinary(file));
+    const existingUrls = window._editExistingPhotoUrls||[];
     const mergedUrls = [...existingUrls, ...newPhotoUrls];
     const updatedData = {
       cat: editCat,
-      time: document.getElementById('eFTime').value || '00:00',
+      time: document.getElementById('eFTime').value||'00:00',
       content,
       place: document.getElementById('eFPlace').value.trim(),
       memo: document.getElementById('eFMemo').value.trim(),
       photoUrls: mergedUrls,
       createdAt: serverTimestamp(),
     };
-    if (editTargetDay !== null && editTargetDay !== activeDay) {
-      await deleteDoc(doc(db, 'days', String(activeDay), 'items', editDocId));
-      await addDoc(collection(db, 'days', String(editTargetDay), 'items'), updatedData);
+    if (editTargetDay!==null && editTargetDay!==activeDay) {
+      await deleteDoc(doc(db,'days',String(activeDay),'items',editDocId));
+      await addDoc(collection(db,'days',String(editTargetDay),'items'), updatedData);
     } else {
       delete updatedData.createdAt;
-      await updateDoc(doc(db, 'days', String(activeDay), 'items', editDocId), updatedData);
+      await updateDoc(doc(db,'days',String(activeDay),'items',editDocId), updatedData);
     }
     window.closeEditModal();
-  } finally {
-    updateBtn.textContent = '수정 완료';
-    updateBtn.disabled = false;
-  }
+  } finally { updateBtn.textContent='수정 완료'; updateBtn.disabled=false; }
 };
 
-// ── DELETE ───────────────────────────────────────────────────────
+// ── DELETE ──
 window.deleteItem = function(docId) {
-  showConfirm(
-    '일정 삭제',
-    '이 일정을 삭제할까요?\n삭제한 일정은 복구할 수 없어요.',
-    async () => {
-      await deleteDoc(doc(db, 'days', String(activeDay), 'items', docId));
-    }
-  );
+  showConfirm('일정 삭제','이 일정을 삭제할까요?\n삭제한 일정은 복구할 수 없어요.', async()=>{
+    await deleteDoc(doc(db,'days',String(activeDay),'items',docId));
+  });
 };
 
-// ── PHOTO ────────────────────────────────────────────────────────
+// ── PHOTO UPLOAD (가족사진) ──
 document.getElementById('photoInput').addEventListener('change', async function(e) {
   const file = e.target.files[0];
   if (!file) return;
   const reader = new FileReader();
   reader.onload = function(ev) {
-    const img = document.getElementById('photoPreview');
-    img.src = ev.target.result;
+    document.getElementById('photoPreview').src = ev.target.result;
     document.getElementById('photoZone').classList.add('has-photo');
   };
   reader.readAsDataURL(file);
   try {
     const url = await uploadToCloudinary(file);
-    await setDoc(doc(db, 'settings', 'familyPhoto'), { url });
-  } catch(err) {
-    console.error('사진 저장 실패:', err);
-  }
+    await setDoc(doc(db,'settings','familyPhoto'), { url });
+  } catch(err) { console.error('사진 저장 실패:', err); }
 });
 
-// ── CLOSE ON BACKDROP ────────────────────────────────────────────
-document.getElementById('addOverlay').addEventListener('click', function(e) {
-  if (e.target === this) window.closeAddModal();
-});
-document.getElementById('editOverlay').addEventListener('click', function(e) {
-  if (e.target === this) window.closeEditModal();
-});
-
-// ── CHECKLIST ─────────────────────────────────────────────────────
+// ── CHECKLIST ──
 function renderChecklist() {
-  let totalItems = 0;
-  let doneItems = 0;
-  const allUnchecked = [];
-  const allChecked = [];
-  DAYS.forEach((d, i) => {
-    const checks = (itemsCache[i] || [])
-      .filter(it => it.cat === 'check')
-      .map(it => ({ ...it, dayIdx: i, day: d }));
-    checks.forEach(item => {
+  let totalItems=0, doneItems=0;
+  const allUnchecked=[], allChecked=[];
+  DAYS.forEach((d,i)=>{
+    (itemsCache[i]||[]).filter(it=>it.cat==='check').forEach(item=>{
       totalItems++;
-      if (item.checked) {
-        doneItems++;
-        allChecked.push(item);
-      } else {
-        allUnchecked.push(item);
-      }
+      if (item.checked) { doneItems++; allChecked.push({...item,dayIdx:i,day:d}); }
+      else allUnchecked.push({...item,dayIdx:i,day:d});
     });
   });
-  const sorted = [...allUnchecked, ...allChecked];
-  let html = '';
-  let lastDayKey = null;
-  sorted.forEach(item => {
-    const i = item.dayIdx;
-    const d = item.day;
-    const isChecked = !!item.checked;
-    const hasDetail = (item.time && item.time !== '00:00') || item.memo;
+  const sorted = [...allUnchecked,...allChecked];
+  let html='', lastDayKey=null;
+  sorted.forEach(item=>{
+    const i=item.dayIdx, d=item.day, isChecked=!!item.checked;
+    const hasDetail = (item.time&&item.time!=='00:00')||item.memo;
     const dayKey = d.date;
-    if (dayKey !== lastDayKey) {
-      if (lastDayKey !== null) html += `</div>`;
-      html += `<div class="checklist-day-group">
-        <div class="checklist-day-group-label">${d.emoji} ${d.date}(${d.weekday}) · ${d.name}</div>`;
-      lastDayKey = dayKey;
+    if (dayKey!==lastDayKey) {
+      if (lastDayKey!==null) html+=`</div>`;
+      html+=`<div class="checklist-day-group"><div class="checklist-day-group-label">${d.emoji} ${d.date}(${d.weekday}) · ${d.name}</div>`;
+      lastDayKey=dayKey;
     }
-    html += `<div class="checklist-item${isChecked ? ' checklist-item-done' : ''}">
-      <div class="checklist-checkbox${isChecked ? ' checked' : ''}" onclick="toggleCheck(${i}, '${item.docId}', ${isChecked})">✓</div>
-      <div class="checklist-item-main">
-        <div class="checklist-item-text${isChecked ? ' done' : ''}">${escHtml(item.content)}</div>
-      </div>
-      ${hasDetail ? `<button class="cl-detail-btn" onclick="toggleCheckDetail(this, ${i}, '${item.docId}')">🔍</button>` : '<span style="width:28px;display:inline-block"></span>'}
+    html+=`<div class="checklist-item${isChecked?' checklist-item-done':''}">
+      <div class="checklist-checkbox${isChecked?' checked':''}" onclick="toggleCheck(${i},'${item.docId}',${isChecked})">✓</div>
+      <div class="checklist-item-main"><div class="checklist-item-text${isChecked?' done':''}">${escHtml(item.content)}</div></div>
+      ${hasDetail?`<button class="cl-detail-btn" onclick="toggleCheckDetail(this,${i},'${item.docId}')">🔍</button>`:'<span style="width:28px;display:inline-block"></span>'}
     </div>
     <div class="cl-detail-box" id="cldetail-${i}-${item.docId}" style="display:none">
-      ${item.time && item.time !== '00:00' ? `<div class="cl-detail-row">🕐 ${escHtml(item.time)}</div>` : ''}
-      ${item.memo ? `<div class="cl-detail-row">📝 ${escHtml(item.memo)}</div>` : ''}
+      ${item.time&&item.time!=='00:00'?`<div class="cl-detail-row">🕐 ${escHtml(item.time)}</div>`:''}
+      ${item.memo?`<div class="cl-detail-row">📝 ${escHtml(item.memo)}</div>`:''}
     </div>`;
   });
-  if (lastDayKey !== null) html += `</div>`;
-  const body = document.getElementById('checklistBody');
-  const progressFill = document.getElementById('progressBarFill');
-  const sub = document.getElementById('checklistSub');
-  if (totalItems === 0) {
-    body.innerHTML = `<div class="checklist-empty">📅 날짜별 일정에서<br>✅ 체크 카테고리로 일정을 추가해 보세요</div>`;
-    sub.textContent = '날짜별 일정에서 ✅ 체크 항목을 추가하면 여기에 표시됩니다';
+  if (lastDayKey!==null) html+=`</div>`;
+  const body=document.getElementById('checklistBody');
+  const progressWrap=document.getElementById('progressBarWrap');
+  const progressFill=document.getElementById('progressBarFill');
+  const sub=document.getElementById('checklistSub');
+  if (totalItems===0) {
+    body.innerHTML=`<div class="checklist-empty">📅 날짜별 일정에서<br>✅ 체크 카테고리로 일정을 추가해 보세요</div>`;
+    progressWrap.style.display='none';
+    sub.textContent='날짜별 일정에서 ✅ 체크 항목을 추가하면 여기에 표시됩니다';
   } else {
-    body.innerHTML = html;
-    progressFill.style.width = Math.round((doneItems / totalItems) * 100) + '%';
-    sub.textContent = `전체 ${totalItems}개 중 ${doneItems}개 완료`;
+    body.innerHTML=html;
+    progressWrap.style.display='';
+    progressFill.style.width=Math.round((doneItems/totalItems)*100)+'%';
+    sub.textContent=`전체 ${totalItems}개 중 ${doneItems}개 완료`;
   }
 }
 window.toggleCheck = async function(dayIdx, docId, currentChecked) {
-  await updateDoc(doc(db, 'days', String(dayIdx), 'items', docId), {
-    checked: !currentChecked
-  });
+  await updateDoc(doc(db,'days',String(dayIdx),'items',docId), { checked: !currentChecked });
 };
 window.toggleCheckDetail = function(btn, dayIdx, docId) {
-  const box = document.getElementById(`cldetail-${dayIdx}-${docId}`);
+  const box=document.getElementById(`cldetail-${dayIdx}-${docId}`);
   if (!box) return;
-  const isOpen = box.style.display !== 'none';
-  box.style.display = isOpen ? 'none' : 'block';
-  btn.textContent = isOpen ? '🔍' : '🔼';
+  const isOpen=box.style.display!=='none';
+  box.style.display=isOpen?'none':'block';
+  btn.textContent=isOpen?'🔍':'🔼';
 };
 
-// ── Cloudinary 업로드 ──────────────────────────────────────────
+// ── CLOUDINARY ──
 async function uploadToCloudinary(file) {
-  const formData = new FormData();
-  formData.append('file', file);
-  formData.append('upload_preset', CLOUDINARY_PRESET);
-  formData.append('folder', 'osaka-planner');
-  const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/image/upload`, {
-    method: 'POST',
-    body: formData,
-  });
+  const formData=new FormData();
+  formData.append('file',file);
+  formData.append('upload_preset',CLOUDINARY_PRESET);
+  formData.append('folder','osaka-planner');
+  const res=await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/image/upload`,{method:'POST',body:formData});
   if (!res.ok) throw new Error('Cloudinary 업로드 실패');
-  const data = await res.json();
-  return data.secure_url.replace('/upload/', '/upload/w_1200,q_auto,f_auto/');
+  const data=await res.json();
+  return data.secure_url.replace('/upload/','/upload/w_1200,q_auto,f_auto/');
 }
 
-// ── 사진 관련 헬퍼 ─────────────────────────────────────────────
+// ── PHOTO HELPERS ──
 window.previewPhotos = function(inputId, gridId) {
-  const files = document.getElementById(inputId).files;
-  const grid = document.getElementById(gridId);
-  const placeholderId = inputId === 'fPhotoInput' ? 'fPhotoPlaceholder' : 'eFPhotoPlaceholder';
-  const placeholder = document.getElementById(placeholderId);
-  Array.from(files).forEach(file => {
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      const wrap = document.createElement('div');
-      wrap.className = 'photo-thumb-wrap';
-      const img = document.createElement('img');
-      img.src = e.target.result;
-      img.className = 'photo-thumb';
-      const del = document.createElement('button');
-      del.className = 'photo-thumb-del';
-      del.textContent = '✕';
-      del.onclick = function() { wrap.remove(); };
-      wrap.appendChild(img);
-      wrap.appendChild(del);
-      grid.appendChild(wrap);
+  const files=document.getElementById(inputId).files;
+  const grid=document.getElementById(gridId);
+  const placeholderId=inputId==='fPhotoInput'?'fPhotoPlaceholder':'eFPhotoPlaceholder';
+  const placeholder=document.getElementById(placeholderId);
+  Array.from(files).forEach(file=>{
+    const reader=new FileReader();
+    reader.onload=function(e){
+      const wrap=document.createElement('div');
+      wrap.className='photo-thumb-wrap';
+      const img=document.createElement('img');
+      img.src=e.target.result; img.className='photo-thumb';
+      const del=document.createElement('button');
+      del.className='photo-thumb-del'; del.textContent='✕';
+      del.onclick=function(){wrap.remove();};
+      wrap.appendChild(img); wrap.appendChild(del); grid.appendChild(wrap);
     };
     reader.readAsDataURL(file);
   });
-  if (placeholder && files.length > 0) placeholder.style.display = 'none';
+  if (placeholder&&files.length>0) placeholder.style.display='none';
 };
 window.removeExistingPhoto = function(idx) {
   if (!window._editExistingPhotoUrls) return;
-  window._editExistingPhotoUrls.splice(idx, 1);
-  const grid = document.getElementById('eFPhotoGrid');
-  grid.innerHTML = '';
-  window._editExistingPhotoUrls.forEach((url, i) => {
-    const wrap = document.createElement('div');
-    wrap.className = 'photo-thumb-wrap';
-    wrap.innerHTML = `<img src="${url}" class="photo-thumb"><button class="photo-thumb-del" onclick="removeExistingPhoto(${i})">✕</button>`;
+  window._editExistingPhotoUrls.splice(idx,1);
+  const grid=document.getElementById('eFPhotoGrid');
+  grid.innerHTML='';
+  window._editExistingPhotoUrls.forEach((url,i)=>{
+    const wrap=document.createElement('div');
+    wrap.className='photo-thumb-wrap';
+    wrap.innerHTML=`<img src="${url}" class="photo-thumb"><button class="photo-thumb-del" onclick="removeExistingPhoto(${i})">✕</button>`;
     grid.appendChild(wrap);
   });
 };
 function showPhotoViewer(allUrls, startIdx) {
-  let current = startIdx || 0;
-  const viewer = document.createElement('div');
-  viewer.className = 'photo-viewer';
-  const render = () => {
-    viewer.innerHTML = `
+  let current=startIdx||0;
+  const viewer=document.createElement('div');
+  viewer.className='photo-viewer';
+  const render=()=>{
+    viewer.innerHTML=`
       <button class="photo-viewer-close">✕</button>
-      ${allUrls.length > 1 ? '<button class="photo-viewer-prev">‹</button>' : ''}
+      ${allUrls.length>1?'<button class="photo-viewer-prev">‹</button>':''}
       <img id="pvImg" src="${allUrls[current]}" alt="사진">
-      ${allUrls.length > 1 ? '<button class="photo-viewer-next">›</button>' : ''}
-      ${allUrls.length > 1 ? `<div class="photo-viewer-counter">${current+1} / ${allUrls.length}</div>` : ''}
+      ${allUrls.length>1?'<button class="photo-viewer-next">›</button>':''}
+      ${allUrls.length>1?`<div class="photo-viewer-counter">${current+1} / ${allUrls.length}</div>`:''}
     `;
-    viewer.querySelector('.photo-viewer-close').onclick = () => viewer.remove();
-    if (allUrls.length > 1) {
-      viewer.querySelector('.photo-viewer-prev').onclick = (e) => {
-        e.stopPropagation();
-        current = (current - 1 + allUrls.length) % allUrls.length;
-        render();
-      };
-      viewer.querySelector('.photo-viewer-next').onclick = (e) => {
-        e.stopPropagation();
-        current = (current + 1) % allUrls.length;
-        render();
-      };
+    viewer.querySelector('.photo-viewer-close').onclick=()=>viewer.remove();
+    if (allUrls.length>1) {
+      viewer.querySelector('.photo-viewer-prev').onclick=(e)=>{e.stopPropagation();current=(current-1+allUrls.length)%allUrls.length;render();};
+      viewer.querySelector('.photo-viewer-next').onclick=(e)=>{e.stopPropagation();current=(current+1)%allUrls.length;render();};
     }
   };
   render();
-  viewer.onclick = (e) => { if (e.target === viewer) viewer.remove(); };
+  viewer.onclick=(e)=>{if(e.target===viewer)viewer.remove();};
   document.body.appendChild(viewer);
 }
-window.openPhotoViewer = function(url, urls, idx) {
-  showPhotoViewer(urls || [url], idx || 0);
-};
 window.openPhotoViewerById = function(docId, idx) {
-  const urls = (window.__photoCache && window.__photoCache[docId]) || [];
-  if (urls.length === 0) return;
+  const urls=(window.__photoCache&&window.__photoCache[docId])||[];
+  if (urls.length===0) return;
   showPhotoViewer(urls, idx);
 };
 
-// ── 메모 접기/펼치기 ────────────────────────────────────────────
+// ── MEMO TOGGLE ──
 window.toggleMemo = function(docId, btn) {
-  const memo = document.getElementById('memo-' + docId);
+  const memo=document.getElementById('memo-'+docId);
   if (memo.classList.contains('item-memo-collapsed')) {
-    memo.classList.remove('item-memo-collapsed');
-    memo.classList.add('item-memo-expanded');
-    btn.textContent = '접기 ▴';
+    memo.classList.remove('item-memo-collapsed'); memo.classList.add('item-memo-expanded'); btn.textContent='접기 ▴';
   } else {
-    memo.classList.remove('item-memo-expanded');
-    memo.classList.add('item-memo-collapsed');
-    btn.textContent = '더 보기 ▾';
+    memo.classList.remove('item-memo-expanded'); memo.classList.add('item-memo-collapsed'); btn.textContent='더 보기 ▾';
   }
 };
 
-// ── 삭제 확인 다이얼로그 ────────────────────────────────────────
-let _confirmCallback = null;
+// ── CONFIRM DIALOG ──
+let _confirmCallback=null;
 window.showConfirm = function(title, msg, onOk) {
-  _confirmCallback = onOk;
-  document.getElementById('confirmTitle').textContent = title;
-  document.getElementById('confirmMsg').textContent = msg;
-  const overlay = document.getElementById('confirmOverlay');
-  overlay.style.cssText = 'display:flex; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:9998; align-items:center; justify-content:center;';
+  _confirmCallback=onOk;
+  document.getElementById('confirmTitle').textContent=title;
+  document.getElementById('confirmMsg').textContent=msg;
+  const overlay=document.getElementById('confirmOverlay');
+  overlay.style.cssText='display:flex; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:9998; align-items:center; justify-content:center;';
 };
 window.doConfirmOk = async function() {
-  const cb = _confirmCallback;
-  window.closeConfirm();
-  if (cb) await cb();
+  const cb=_confirmCallback; window.closeConfirm(); if(cb) await cb();
 };
 window.closeConfirm = function() {
-  document.getElementById('confirmOverlay').style.cssText = 'display:none;';
-  _confirmCallback = null;
+  document.getElementById('confirmOverlay').style.cssText='display:none;'; _confirmCallback=null;
 };
 
-// ── 자동백업 (JSON 다운로드) ─────────────────────────────────────
+// ── BACKUP ──
 window.downloadBackup = function() {
-  const status = document.getElementById('backupStatus');
-  status.textContent = '백업 중...';
-  const backup = {
-    createdAt: new Date().toISOString(),
-    version: '1.0',
-    days: DAYS.map((d, i) => ({
-      date: d.date,
-      weekday: d.weekday,
-      name: d.name,
-      memo: memosCache[i] || '',
-      items: (itemsCache[i] || []).map(item => ({
-        cat: item.cat,
-        time: item.time,
-        content: item.content,
-        place: item.place || '',
-        memo: item.memo || '',
-        photoUrls: item.photoUrls || [],
-        checked: item.checked || false,
+  const status=document.getElementById('backupStatus');
+  status.textContent='백업 중...';
+  const backup={
+    createdAt: new Date().toISOString(), version:'1.0',
+    days: DAYS.map((d,i)=>({
+      date:d.date, weekday:d.weekday, name:d.name, memo:memosCache[i]||'',
+      items:(itemsCache[i]||[]).map(item=>({
+        cat:item.cat, time:item.time, content:item.content,
+        place:item.place||'', memo:item.memo||'', photoUrls:item.photoUrls||[], checked:item.checked||false,
       }))
     }))
   };
-  const json = JSON.stringify(backup, null, 2);
-  const blob = new Blob([json], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  const date = new Date().toLocaleDateString('ko-KR').replace(/\./g,'-').replace('-','');
-  a.href = url;
-  a.download = `osaka-planner-backup-${date}.json`;
-  a.click();
+  const blob=new Blob([JSON.stringify(backup,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  const date=new Date().toLocaleDateString('ko-KR').replace(/\./g,'-').replace('-','');
+  a.href=url; a.download=`osaka-planner-backup-${date}.json`; a.click();
   URL.revokeObjectURL(url);
-  status.textContent = `✅ ${date} 백업 완료`;
-  setTimeout(() => status.textContent = '', 3000);
+  status.textContent=`✅ ${date} 백업 완료`;
+  setTimeout(()=>status.textContent='',3000);
 };
 
-// ── 자동백업 (매일 첫 방문 시) ──────────────────────────────────
-(function autoBackup() {
-  const today = new Date().toDateString();
-  const lastBackup = localStorage.getItem('lastAutoBackup');
-  if (lastBackup === today) return;
-  setTimeout(() => {
-    const hasData = Object.values(itemsCache).some(arr => arr && arr.length > 0);
-    if (!hasData) return;
-    window.downloadBackup();
-    localStorage.setItem('lastAutoBackup', today);
-  }, 3000);
-})();
-
-// ── 구글지도 연동 ───────────────────────────────────────────────
-window.openMap = function(query) {
-  const url = `https://www.google.com/maps/search/?api=1&query=${query}`;
-  window.open(url, '_blank');
-};
+// ── MAP ──
+window.openMap = function(query) { window.open(`https://www.google.com/maps/search/?api=1&query=${query}`,'_blank'); };
 window.searchPlace = function(inputId) {
-  const val = document.getElementById(inputId).value.trim();
-  const searchTerm = val || '장소';
-  const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(searchTerm + ' 오사카')}`;
-  window.open(url, '_blank');
+  const val=document.getElementById(inputId).value.trim();
+  window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((val||'장소')+' 오사카')}`,'_blank');
 };
 
-// ── Firebase에서 저장된 가족사진 불러오기 ──────────────────────
-const DEFAULT_PHOTO = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAMCAgMCAgMDAwMEAwMEBQgFBQQEBQoH BwYIDAoMCwsKCwsNCxAQDQ4RDgsLEBYQERMUFRUVDA8XGBYUGBIUFRT/2wBDAQMEBAUEBQkFBQkUDQsNFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBT/wAARCAABAAEDASIAAhEBAxEB/8QAFAABAAAAAAAAAAAAAAAAAAAACf/EABQQAQAAAAAAAAAAAAAAAAAAAAD/xAAUAQEAAAAAAAAAAAAAAAAAAAAA/8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEQMRAD8AJQAB/9k=";
+// ── CLOSE ON BACKDROP ──
+document.getElementById('addOverlay').addEventListener('click',function(e){if(e.target===this)window.closeAddModal();});
+document.getElementById('editOverlay').addEventListener('click',function(e){if(e.target===this)window.closeEditModal();});
 
-(async () => {
-  const photoImg = document.getElementById('photoPreview');
+// ── 가족사진 불러오기 ──
+(async()=>{
   try {
-    const snap = await getDoc(doc(db, 'settings', 'familyPhoto'));
-    if (snap.exists() && snap.data().url) {
-      photoImg.src = snap.data().url;
-      document.getElementById('photoZone').classList.add('has-photo');
-    } else {
-      photoImg.src = DEFAULT_PHOTO;
+    const snap=await getDoc(doc(db,'settings','familyPhoto'));
+    if (snap.exists()&&snap.data().url) {
+      document.getElementById('photoPreview').src=snap.data().url;
       document.getElementById('photoZone').classList.add('has-photo');
     }
-  } catch(e) {
-    photoImg.src = DEFAULT_PHOTO;
-    document.getElementById('photoZone').classList.add('has-photo');
-  }
+  } catch(e) {}
 })();
 
-renderChecklist();
 renderDaysGrid();
+renderChecklist();
 fetchWeather();
 </script>
 
 <script>
-// ── 체크리스트 패널 토글 ─────────────────────────────────────────
+// ── 체크리스트 패널 토글 ──
 window.toggleChecklistPanel = function() {
-  const panel = document.getElementById('checklistSection');
-  const icon = document.getElementById('checklistToggleIcon');
-  if (panel.style.display === 'none') {
-    panel.style.display = '';
-    icon.textContent = '▲';
-  } else {
-    panel.style.display = 'none';
-    icon.textContent = '▼';
-  }
+  const panel=document.getElementById('checklistSection');
+  const icon=document.getElementById('checklistToggleIcon');
+  if (panel.style.display==='none') { panel.style.display=''; icon.textContent='▲'; }
+  else { panel.style.display='none'; icon.textContent='▼'; }
 };
-</script>
 
-<script>
-// ── Service Worker 등록 + PWA 설치 프롬프트 ──
-let deferredPrompt = null;
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-  const banner = document.getElementById('pwa-install-banner');
-  if (banner) banner.style.display = 'flex';
+// ── PWA ──
+let deferredPrompt=null;
+window.addEventListener('beforeinstallprompt',(e)=>{
+  e.preventDefault(); deferredPrompt=e;
+  document.getElementById('pwa-install-banner').style.display='flex';
 });
-window.addEventListener('appinstalled', () => {
-  const banner = document.getElementById('pwa-install-banner');
-  if (banner) banner.style.display = 'none';
-  deferredPrompt = null;
+window.addEventListener('appinstalled',()=>{
+  document.getElementById('pwa-install-banner').style.display='none'; deferredPrompt=null;
 });
 window.installPWA = async function() {
   if (deferredPrompt) {
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    deferredPrompt = null;
-    const banner = document.getElementById('pwa-install-banner');
-    if (banner) banner.style.display = 'none';
+    deferredPrompt.prompt(); await deferredPrompt.userChoice; deferredPrompt=null;
+    document.getElementById('pwa-install-banner').style.display='none';
   } else {
-    const guide = document.getElementById('pwa-manual-guide');
-    if (guide) guide.style.display = 'flex';
+    document.getElementById('pwa-manual-guide').style.display='flex';
   }
 };
-window.dismissBanner = function() {
-  const banner = document.getElementById('pwa-install-banner');
-  if (banner) banner.style.display = 'none';
-};
+window.dismissBanner = function() { document.getElementById('pwa-install-banner').style.display='none'; };
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js')
-      .then(reg => console.log('SW 등록 완료:', reg.scope))
-      .catch(err => console.log('SW 등록 실패:', err));
-  });
+  window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}));
 }
-</script>
 
-<!-- ★ SPLASH SCREEN JS ★ -->
-<script>
-(function() {
-  const splash = document.getElementById('splashScreen');
-  if (!splash) return;
-
-  // ── 새로고침 시 스플래시 재등장 방지 ──
-  // sessionStorage: 탭을 닫으면 초기화 → 다음 방문 시 다시 표시
-  if (sessionStorage.getItem('splashShown')) {
-    splash.style.display = 'none';
+// ── SPLASH ──
+(function(){
+  // 같은 세션에서 이미 봤으면 스플래시 스킵
+  if (sessionStorage.getItem('splashSeen')) {
+    document.getElementById('splashScreen').style.display='none';
     return;
   }
-
-  // 벚꽃 파티클 생성
-  const petals = ['🌸','🌺','🌷','✿','❀'];
-  for (let i = 0; i < 18; i++) {
-    const el = document.createElement('span');
-    el.className = 'sakura-petal';
-    el.textContent = petals[i % petals.length];
-    el.style.left = (Math.random() * 100) + 'vw';
-    el.style.animationDuration = (4 + Math.random() * 6) + 's';
-    el.style.animationDelay    = (Math.random() * 6) + 's';
-    el.style.fontSize = (1 + Math.random() * 1.2) + 'rem';
+  const splash=document.getElementById('splashScreen');
+  const petals=['🌸','🌺','🌷','✿','❀'];
+  for (let i=0;i<18;i++){
+    const el=document.createElement('span');
+    el.className='sakura-petal';
+    el.textContent=petals[i%petals.length];
+    el.style.left=(Math.random()*100)+'vw';
+    el.style.animationDuration=(4+Math.random()*6)+'s';
+    el.style.animationDelay=(Math.random()*6)+'s';
+    el.style.fontSize=(1+Math.random()*1.2)+'rem';
     splash.appendChild(el);
   }
-
   window.enterApp = function() {
-    sessionStorage.setItem('splashShown', '1'); // 이후 새로고침엔 스플래시 안 보임
+    sessionStorage.setItem('splashSeen','1');
     splash.classList.add('splash-exit');
-    setTimeout(function() {
-      splash.style.display = 'none';
-    }, 700);
+    setTimeout(()=>{ splash.style.display='none'; }, 700);
   };
-
-  splash.addEventListener('click', function(e) {
-    if (!e.target.classList.contains('splash-enter-btn')) {
-      window.enterApp();
-    }
+  splash.addEventListener('click',function(e){
+    if (!e.target.classList.contains('splash-enter-btn')) window.enterApp();
   });
 })();
 </script>
 
 </body>
 </html>
-
