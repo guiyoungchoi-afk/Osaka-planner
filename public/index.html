@@ -1970,49 +1970,50 @@ if ('serviceWorker' in navigator) {
 }
 </script>
 
-  <script>
-    let deferredPrompt = null;
+<script>
+// ── Service Worker 등록 + PWA 설치 프롬프트 ──
+let deferredPrompt = null;
 
-    // 처음엔 배너 숨기기
-    document.getElementById('pwa-install-banner').style.display = 'none';
+// 처음엔 배너 숨기기
+document.getElementById('pwa-install-banner').style.display = 'none';
 
-    // Android Chrome: 설치 가능 시점에 이벤트 발생
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      deferredPrompt = e;
-      document.getElementById('pwa-install-banner').style.display = 'flex';
-    });
+// Android Chrome: 설치 가능 시점에 이벤트 발생
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  document.getElementById('pwa-install-banner').style.display = 'flex';
+});
 
-    function installPWA() {
-      if (deferredPrompt) {
-        deferredPrompt.prompt();
-        deferredPrompt.userChoice.then(() => {
-          deferredPrompt = null;
-          document.getElementById('pwa-install-banner').style.display = 'none';
-        });
-      } else {
-        // iOS Safari → 수동 안내 팝업
-        document.getElementById('pwa-manual-guide').style.display = 'flex';
-      }
-    }
-
-    function dismissBanner() {
-      document.getElementById('pwa-install-banner').style.display = 'none';
-    }
-
-    window.addEventListener('appinstalled', () => {
-      document.getElementById('pwa-install-banner').style.display = 'none';
+function installPWA() {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(() => {
       deferredPrompt = null;
+      document.getElementById('pwa-install-banner').style.display = 'none';
     });
+  } else {
+    document.getElementById('pwa-manual-guide').style.display = 'flex';
+  }
+}
 
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js')
-          .then(reg => console.log('✅ SW 등록:', reg.scope))
-          .catch(err => console.error('❌ SW 실패:', err));
-      });
-    }
-    </script>
+function dismissBanner() {
+  document.getElementById('pwa-install-banner').style.display = 'none';
+}
+
+window.addEventListener('appinstalled', () => {
+  document.getElementById('pwa-install-banner').style.display = 'none';
+  deferredPrompt = null;
+});
+
+// ⚠️ service-worker.js 로 통일 (sw.js 아님!)
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/service-worker.js')
+      .then(reg => console.log('✅ SW 등록:', reg.scope))
+      .catch(err => console.error('❌ SW 실패:', err));
+  });
+}
+</script>
   
 </body>
 </html>
