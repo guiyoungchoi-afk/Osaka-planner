@@ -1801,6 +1801,16 @@ if ('serviceWorker' in navigator) {
 <script>
 (function() {
   const splash = document.getElementById('splashScreen');
+  if (!splash) return;
+
+  // ── 새로고침 시 스플래시 재등장 방지 ──
+  // sessionStorage: 탭을 닫으면 초기화 → 다음 방문 시 다시 표시
+  if (sessionStorage.getItem('splashShown')) {
+    splash.style.display = 'none';
+    return;
+  }
+
+  // 벚꽃 파티클 생성
   const petals = ['🌸','🌺','🌷','✿','❀'];
   for (let i = 0; i < 18; i++) {
     const el = document.createElement('span');
@@ -1812,12 +1822,15 @@ if ('serviceWorker' in navigator) {
     el.style.fontSize = (1 + Math.random() * 1.2) + 'rem';
     splash.appendChild(el);
   }
+
   window.enterApp = function() {
+    sessionStorage.setItem('splashShown', '1'); // 이후 새로고침엔 스플래시 안 보임
     splash.classList.add('splash-exit');
     setTimeout(function() {
       splash.style.display = 'none';
     }, 700);
   };
+
   splash.addEventListener('click', function(e) {
     if (!e.target.classList.contains('splash-enter-btn')) {
       window.enterApp();
