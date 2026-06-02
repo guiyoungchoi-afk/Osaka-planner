@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<link rel="manifest" href="/manifest.json">
+<link rel="manifest" href="/public/manifest.json">
 <meta name="theme-color" content="#c4522d">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -1225,7 +1225,7 @@ window.installPWA = async function() {
 };
 window.dismissBanner = function() { document.getElementById('pwa-install-banner').style.display='none'; };
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}));
+  window.addEventListener('load',()=>navigator.serviceWorker.register('/public/sw.js').catch(()=>{}));
 }
 
 // ── SPLASH ──
