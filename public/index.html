@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -259,8 +258,59 @@
   .backup-status { font-size: 12px; color: var(--muted); }
 
   /* ── FOOTER ── */
-  .app-footer { text-align: center; padding: 1rem 1.25rem 2rem; font-size: 12px; color: var(--muted); }
+  .app-footer { text-align: center; padding: 1rem 1.25rem 5rem; font-size: 12px; color: var(--muted); }
   .app-footer span { color: var(--red); }
+
+  /* ── BOTTOM NAV ── */
+  .bottom-nav {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: white; border-top: 1px solid var(--border);
+    display: flex; align-items: stretch;
+    z-index: 1000;
+    padding-bottom: env(safe-area-inset-bottom);
+    box-shadow: 0 -2px 12px rgba(0,0,0,0.08);
+  }
+  .nav-btn {
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 8px 4px; gap: 3px;
+    background: none; border: none; cursor: pointer;
+    font-family: inherit; transition: background 0.15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .nav-btn:active { background: #f7f2eb; }
+  .nav-btn.active .nav-icon { filter: none; opacity: 1; }
+  .nav-btn.active .nav-label { color: var(--red); font-weight: 700; }
+  .nav-icon { font-size: 22px; line-height: 1; opacity: 0.5; }
+  .nav-btn.active .nav-icon { opacity: 1; }
+  .nav-label { font-size: 10px; color: var(--muted); font-weight: 500; }
+
+  /* ── BOTTOM NAV ── */
+  .bottom-nav {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: white;
+    border-top: 1px solid var(--border);
+    display: flex; align-items: stretch;
+    z-index: 1000;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .nav-item {
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 10px 4px 8px;
+    cursor: pointer; border: none; background: none;
+    font-family: inherit; transition: all 0.15s;
+    gap: 3px;
+  }
+  .nav-item:active { background: #f7f2eb; }
+  .nav-icon { font-size: 22px; line-height: 1; }
+  .nav-label { font-size: 10px; font-weight: 600; color: var(--muted); letter-spacing: 0.3px; }
+  .nav-item.active .nav-label { color: var(--red); }
+  .nav-item.active .nav-icon { transform: scale(1.15); }
+
+  /* 하단 네비 공간 확보 */
+  body { padding-bottom: calc(64px + env(safe-area-inset-bottom)); }
 
   /* ── PWA BANNER ── */
   #pwa-install-banner { display: none; position: fixed; bottom: 0; left: 0; right: 0; z-index: 9999; background: #2c1810; padding: 14px 20px; align-items: center; justify-content: space-between; gap: 12px; box-shadow: 0 -4px 20px rgba(0,0,0,0.3); }
@@ -413,6 +463,30 @@
 </div>
 <div class="app-footer">조씨네 오사카 여행 <span>♥</span> 2026</div>
 
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav" id="bottomNav">
+  <button class="nav-item active" id="nav-home" onclick="navTo('home')">
+    <span class="nav-icon">🏠</span>
+    <span class="nav-label">홈</span>
+  </button>
+  <button class="nav-item" id="nav-schedule" onclick="navTo('schedule')">
+    <span class="nav-icon">📅</span>
+    <span class="nav-label">일정</span>
+  </button>
+  <button class="nav-item" id="nav-checklist" onclick="navTo('checklist')">
+    <span class="nav-icon">✅</span>
+    <span class="nav-label">체크리스트</span>
+  </button>
+  <button class="nav-item" id="nav-photo" onclick="navTo('photo')">
+    <span class="nav-icon">📸</span>
+    <span class="nav-label">가족사진</span>
+  </button>
+  <button class="nav-item" id="nav-backup" onclick="navTo('backup')">
+    <span class="nav-icon">💾</span>
+    <span class="nav-label">백업</span>
+  </button>
+</nav>
+
 <!-- ADD MODAL -->
 <div class="overlay" id="addOverlay">
   <div class="modal">
@@ -540,7 +614,7 @@ const DAYS = [
   { date:'5/27', weekday:'수', name:'교토→오사카 이동', emoji:'🚃' },
   { date:'5/28', weekday:'목', name:'오사카', emoji:'🏯' },
   { date:'5/29', weekday:'금', name:'유니버셜', emoji:'🎮' },
-  { date:'5/30', weekday:'토', name:'오사카', emoji:'🍜' },
+  { date:'5/30', weekday:'토', name:'오사카', emoji:'🦀' },
   { date:'5/31', weekday:'일', name:'귀국', emoji:'🏠' },
 ];
 const CAT = {
@@ -1066,6 +1140,40 @@ fetchWeather();
 </script>
 
 <script>
+// ── BOTTOM NAV ──
+window.navTo = function(tab) {
+  // 모든 탭 비활성화
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  document.getElementById('nav-' + tab).classList.add('active');
+
+  const photoZoneWrap = document.querySelector('[style*="margin-top:1.25rem"]') || document.getElementById('photoZone')?.parentElement;
+  const checklistWrap = document.getElementById('checklistSection')?.parentElement;
+  const daysWrap = document.getElementById('daysGrid')?.parentElement;
+  const scheduleWrap = document.getElementById('scheduleWrap');
+  const backupBar = document.querySelector('.backup-bar');
+  const footer = document.querySelector('.app-footer');
+
+  if (tab === 'home') {
+    // 홈: 전체 보기
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  } else if (tab === 'schedule') {
+    // 일정: 날짜 카드로 스크롤
+    document.getElementById('daysGrid').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } else if (tab === 'checklist') {
+    // 체크리스트: 열고 스크롤
+    const panel = document.getElementById('checklistSection');
+    const icon = document.getElementById('checklistToggleIcon');
+    if (panel.style.display === 'none') { panel.style.display = ''; icon.textContent = '▲'; }
+    document.getElementById('checklistSectionLabel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } else if (tab === 'photo') {
+    // 가족사진: 사진 영역으로 스크롤
+    document.getElementById('photoZone').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  } else if (tab === 'backup') {
+    // 백업: 백업 버튼으로 스크롤
+    document.querySelector('.backup-bar').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+};
+
 // ── 체크리스트 패널 토글 ──
 window.toggleChecklistPanel = function() {
   const panel=document.getElementById('checklistSection');
